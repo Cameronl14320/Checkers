@@ -5,8 +5,6 @@ import com.sun.corba.se.impl.orbutil.graph.Graph;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Stack;
 
 public class Game extends JPanel {
@@ -30,7 +28,6 @@ public class Game extends JPanel {
 
     public void paint(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
         Position[][] positions = currentBoard.getPositions();
         Piece[][] pieces = currentBoard.getPieces();
 
