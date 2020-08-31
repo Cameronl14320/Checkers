@@ -1,34 +1,32 @@
 package Display;
 
-import Game.Game;
-import Game.Board;
-import javafx.geometry.Pos;
+import Game.*;
 
 import javax.swing.*;
 import java.awt.*;
 
+
+
 public class GUI {
 
     private JFrame gameFrame;
-    private JPanel displayPanel;
-    private Graphics2D graphics;
-
     private Game game;
 
-    private int rectSize = 20;
+    private int rectSize = 40;
 
     public GUI() {
-        game = new Game();
-        gameFrame = new JFrame();
-        displayPanel = new JPanel();
-        graphics = (Graphics2D) displayPanel.getGraphics();
-        gameFrame.setPreferredSize(new Dimension(800, 800));
-    }
+        gameFrame = new JFrame("Checkers");
+        gameFrame.setLayout(new BorderLayout());
+        gameFrame.setMinimumSize(new Dimension(800, 800));
+        gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gameFrame.getContentPane().add(new JLabel(), BorderLayout.CENTER);
 
-    public void draw() {
-        Board board = game.getBoard();
-        Position[][] positions = board.getPositions();
-        Piece[][] pieces = board.getPieces();
-        for (board.g)
+        game = new Game();
+        game.setMinimumSize(new Dimension(rectSize*8, rectSize*8));
+        game.setVisible(true);
+        gameFrame.add(game);
+
+        gameFrame.pack();
+        gameFrame.setVisible(true);
     }
 }
