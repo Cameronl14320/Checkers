@@ -5,6 +5,8 @@ import com.sun.corba.se.impl.orbutil.graph.Graph;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Stack;
 
 public class Game extends JPanel {
@@ -12,7 +14,10 @@ public class Game extends JPanel {
     private Board currentBoard;
     private Stack<Board> previousBoards;
 
+    private Piece selected;
+
     private int delay = 40; // 40ms repaint delay
+    private int rectSize = 20;
 
     public Game() {
         int size = 8;
@@ -20,6 +25,23 @@ public class Game extends JPanel {
         initBoard(size, rowsOfPieces);
 
         new Timer(delay, e->repaint()).start();
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int col = e.getX()/rectSize;
+                int row = e.getY()/rectSize;
+
+                Piece newSelect = currentBoard.getPieces()[row][col];
+                if (newSelect != null) {
+                    newSelect.setHighlight(true);
+                    if (selected != null && newSelect != selected) {
+                        selected.setHighlight(false);
+                    }
+                    selected = newSelect;
+                }
+            }
+        });
     }
 
     public void initBoard(int size, int rowsOfPieces) {
@@ -31,7 +53,7 @@ public class Game extends JPanel {
         Position[][] positions = currentBoard.getPositions();
         Piece[][] pieces = currentBoard.getPieces();
 
-        int rectSize = (this.getWidth() < this.getHeight() ? this.getWidth()/positions.length : this.getHeight()/ positions.length);
+        rectSize = (this.getWidth() < this.getHeight() ? this.getWidth()/positions.length : this.getHeight()/ positions.length);
         // Draw Board Positions
         for (int row = 0; row < positions.length; row++) {
             for (int col = 0; col < positions[0].length; col++) {
