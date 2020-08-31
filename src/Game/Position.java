@@ -1,3 +1,7 @@
+package Game;
+
+import Game.Piece;
+
 public class Position {
 
     private final int color; // 1 for BLACK, 0 for WHITE
@@ -19,6 +23,10 @@ public class Position {
 
     public int getCol() {
         return col;
+    }
+
+    public boolean isBlack() {
+        return (color == 1);
     }
 
     @Override
