@@ -12,7 +12,7 @@ public class Game extends JPanel {
     private Board currentBoard;
     private Stack<Board> previousBoards;
 
-    private int delay = 40;
+    private int delay = 40; // 40ms repaint delay
 
     public Game() {
         int size = 8;
@@ -35,13 +35,7 @@ public class Game extends JPanel {
         // Draw Board Positions
         for (int row = 0; row < positions.length; row++) {
             for (int col = 0; col < positions[0].length; col++) {
-                Position position = positions[row][col];
-                if (position.isBlack()) {
-                    g.setColor(Color.BLACK);
-                } else {
-                    g.setColor(Color.WHITE);
-                }
-                g.fillRect(col * rectSize, row * rectSize, rectSize, rectSize);
+                positions[row][col].paint(g, rectSize);
             }
         }
 
@@ -50,12 +44,7 @@ public class Game extends JPanel {
             for (int col = 0; col < pieces[0].length; col++) {
                 Piece piece = pieces[row][col];
                 if (piece != null) {
-                    if (piece.isBlack()) {
-                        g.setColor(Color.RED);
-                    } else {
-                        g.setColor(Color.WHITE);
-                    }
-                    g.fillOval(col * rectSize, row * rectSize, rectSize, rectSize);
+                    piece.paint(g, rectSize);
                 }
             }
         }
