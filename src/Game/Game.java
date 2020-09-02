@@ -1,12 +1,14 @@
 package Game;
 
 import Display.GUI;
+import Movement.Move;
 import com.sun.corba.se.impl.orbutil.graph.Graph;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Stack;
 
 public class Game extends JPanel {
@@ -14,34 +16,43 @@ public class Game extends JPanel {
     private Board currentBoard;
     private Stack<Board> previousBoards;
 
+    private int currentPlayer;
+    private final int size;
     private Piece selected;
+
+    private ArrayList<Move> validMoves;
 
     private int delay = 40; // 40ms repaint delay
     private int rectSize = 20;
 
     public Game() {
-        int size = 8;
+        currentPlayer = 1;
+        size = 8;
         int rowsOfPieces = 3;
         initBoard(size, rowsOfPieces);
 
         new Timer(delay, e->repaint()).start();
+    }
 
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                int col = e.getX()/rectSize;
-                int row = e.getY()/rectSize;
+    public void handleActions(MouseEvent e) {
+        int row = e.getY()/rectSize;
+        int col = e.getX()/rectSize;
 
-                Piece newSelect = currentBoard.getPieces()[row][col];
-                if (newSelect != null) {
-                    newSelect.setHighlight(true);
-                    if (selected != null && newSelect != selected) {
-                        selected.setHighlight(false);
-                    }
-                    selected = newSelect;
+        Piece newSelect = currentBoard.getPieceAt(row, col);
+        if (newSelect != null) {
+            //if (newSelect.matchingPlayer(currentPlayer)){
+                newSelect.setHighlight(true);
+                if (selected != null && newSelect != selected) {
+                    selected.setHighlight(false);
                 }
+                selected = newSelect;
+                currentBoard.getValidMoves(selected);
+            //}
+        } else {
+            if (selected != null) {
+
             }
-        });
+        }
     }
 
     public void initBoard(int size, int rowsOfPieces) {
@@ -50,25 +61,8 @@ public class Game extends JPanel {
 
     public void paint(Graphics g) {
         super.paintComponent(g);
-        Position[][] positions = currentBoard.getPositions();
-        Piece[][] pieces = currentBoard.getPieces();
-
-        rectSize = (this.getWidth() < this.getHeight() ? this.getWidth()/positions.length : this.getHeight()/ positions.length);
         // Draw Board Positions
-        for (int row = 0; row < positions.length; row++) {
-            for (int col = 0; col < positions[0].length; col++) {
-                positions[row][col].paint(g, rectSize);
-            }
-        }
-
-        // Draw Board Pieces
-        for (int row = 0; row < pieces.length; row++) {
-            for (int col = 0; col < pieces[0].length; col++) {
-                Piece piece = pieces[row][col];
-                if (piece != null) {
-                    piece.paint(g, rectSize);
-                }
-            }
-        }
+        rectSize = (this.getWidth() < this.getHeight() ? this.getWidth()/size : this.getHeight()/size);
+        currentBoard.paint(g, rectSize);
     }
 }

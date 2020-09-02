@@ -4,7 +4,8 @@ import Game.*;
 
 import javax.swing.*;
 import java.awt.*;
-
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 
 public class GUI {
@@ -20,6 +21,12 @@ public class GUI {
 
         game = new Game();
         game.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        game.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                game.handleActions(e);
+            }
+        });
         gameFrame.add(game);
 
         gameFrame.pack();

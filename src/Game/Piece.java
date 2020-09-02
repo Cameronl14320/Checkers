@@ -26,12 +26,26 @@ public class Piece {
         return (player == 1);
     }
 
+    public boolean matchingPlayer(int player) {
+        return player == this.player;
+    }
+
     public void setHighlight(boolean selected) {
         if (selected) {
             isHighlighted = true;
         } else {
             isHighlighted = false;
         }
+    }
+
+
+
+    public Position getPosition() {
+        return this.position;
+    }
+
+    public boolean getIsPromoted() {
+        return this.isPromoted;
     }
 
     public void paint(Graphics g, int rectSize) {
