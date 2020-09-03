@@ -8,5 +8,6 @@ public interface Move {
 
     public boolean isValid();
 
-    public Board apply(Board board, Piece piece, Position nextPosition);
+    public void apply(Board board);
+
 }

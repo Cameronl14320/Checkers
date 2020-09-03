@@ -57,7 +57,11 @@ public class Jump implements Move {
             return false;
         }
 
-        if (!pieceAtNext) {
+        if (movingPiece.getPlayer() == takePiece.getPlayer()) {
+            return false;
+        }
+
+        if (pieceAtNext) {
             return false;
         }
 
@@ -65,7 +69,10 @@ public class Jump implements Move {
     }
 
     @Override
-    public Board apply(Board board, Piece piece, Position nextPosition) {
-        return null;
+    public void apply(Board board) {
+        if (!isValid()) {
+            return;
+        }
+        return;
     }
 }

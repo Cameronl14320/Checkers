@@ -26,6 +26,10 @@ public class Piece {
         return (player == 1);
     }
 
+    public int getPlayer() {
+        return this.player;
+    }
+
     public boolean matchingPlayer(int player) {
         return player == this.player;
     }
@@ -38,7 +42,9 @@ public class Piece {
         }
     }
 
-
+    public void setPosition(Position position) {
+        this.position = position;
+    }
 
     public Position getPosition() {
         return this.position;

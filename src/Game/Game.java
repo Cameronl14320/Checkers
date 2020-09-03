@@ -1,12 +1,11 @@
 package Game;
 
-import Display.GUI;
+import Movement.Forward;
+import Movement.Jump;
 import Movement.Move;
-import com.sun.corba.se.impl.orbutil.graph.Graph;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -18,7 +17,8 @@ public class Game extends JPanel {
 
     private int currentPlayer;
     private final int size;
-    private Piece selected;
+    private Piece selectedPiece;
+    private Position selectedPosition;
 
     private ArrayList<Move> validMoves;
 
@@ -29,8 +29,9 @@ public class Game extends JPanel {
         currentPlayer = 1;
         size = 8;
         int rowsOfPieces = 3;
-        initBoard(size, rowsOfPieces);
 
+        previousBoards = new Stack<Board>();
+        initBoard(size, rowsOfPieces);
         new Timer(delay, e->repaint()).start();
     }
 
@@ -42,18 +43,31 @@ public class Game extends JPanel {
         if (newSelect != null) {
             //if (newSelect.matchingPlayer(currentPlayer)){
                 newSelect.setHighlight(true);
-                if (selected != null && newSelect != selected) {
-                    selected.setHighlight(false);
+                if (selectedPiece != null && newSelect != selectedPiece) {
+                    selectedPiece.setHighlight(false);
                 }
-                selected = newSelect;
-                currentBoard.getValidMoves(selected);
+                selectedPiece = newSelect;
+                currentBoard.getValidMoves(selectedPiece);
             //}
         } else {
-            if (selected != null) {
+            if (selectedPiece != null) {
+                Board newBoard = null;
+                selectedPosition = currentBoard.getPositionAt(row, col);
+                if (selectedPosition != null) {
 
+                }
             }
         }
     }
+
+    private void changeTurn() {
+        if (currentPlayer == 1) {
+            currentPlayer = 0;
+        } else {
+            currentPlayer = 1;
+        }
+    }
+
 
     public void initBoard(int size, int rowsOfPieces) {
         this.currentBoard = new Board(size, rowsOfPieces); // Create an 8*8 board

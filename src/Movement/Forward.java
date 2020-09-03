@@ -66,11 +66,10 @@ public class Forward implements Move {
     }
 
     @Override
-    public Board apply(Board board, Piece piece, Position nextPosition) {
+    public void apply(Board board) {
         if (!isValid()) {
-            return null;
+            return;
         }
-
-        return null;
+        return;
     }
 }
