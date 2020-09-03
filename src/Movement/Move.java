@@ -8,7 +8,7 @@ public interface Move {
 
     public boolean isValid();
 
-    public void apply(Board board);
+    public boolean apply(Board board);
 
     public void undo(Board board);
 

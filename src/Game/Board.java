@@ -68,7 +68,27 @@ public class Board {
         }
     }
 
-    public void getValidMoves(Piece piece) {
+    public void removeHighlights() {
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                positions[row][col].setHighlightTile(false);
+            }
+        }
+    }
+
+    public void checkPromoted(Piece piece) {
+        if (piece.getPlayer() == 1) {
+            if (piece.getPosition().getRow() == 0) {
+                piece.setPromoted(true);
+            }
+        } else {
+            if (piece.getPosition().getRow() == size - 1) {
+                piece.setPromoted(true);
+            }
+        }
+    }
+
+    public void getValidPositions(Piece piece, boolean mustJump) {
         for (Position p : validPositions) {
             p.setHighlightTile(false);
         }
@@ -84,13 +104,19 @@ public class Board {
                     if (nextPosition != null) {
                         nextMove = new Jump(piece, takePiece, nextPosition, pieceAt(nextPosition));
                     }
-                // Determine if standard movement available
+                    // Determine if standard movement available
                 } else {
                     nextMove = new Forward(piece, nextPosition, pieceAt(nextPosition));
                 }
                 // Add it to available moves
                 if (nextMove != null && nextMove.isValid()) {
-                    validPositions.add(nextPosition);
+                    if (mustJump) {
+                        if (nextMove.getClass().equals(Jump.class)) {
+                            validPositions.add(nextPosition);
+                        }
+                    } else {
+                        validPositions.add(nextPosition);
+                    }
                     nextMove = null;
                 }
             }
@@ -101,6 +127,40 @@ public class Board {
         }
     }
 
+    public ArrayList<Move> getValidMoves(Piece piece, boolean mustJump) {
+        ArrayList<Move> validMoves = new ArrayList<>();
+        Move nextMove = null;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Position nextPosition = positions[row][col];
+                Piece takePiece = pieces.get(positions[row][col]);
+                // Determine if able to take a piece
+                if (takePiece != null) {
+                    nextPosition = findJumpPosition(piece, takePiece);
+                    if (nextPosition != null) {
+                        nextMove = new Jump(piece, takePiece, nextPosition, pieceAt(nextPosition));
+                    }
+                    // Determine if standard movement available
+                } else {
+                    nextMove = new Forward(piece, nextPosition, pieceAt(nextPosition));
+                }
+                // Add it to available moves
+                if (nextMove != null && nextMove.isValid()) {
+                    if (mustJump) {
+                        if (nextMove.getClass().equals(Jump.class)) {
+                            validMoves.add(nextMove);
+                        }
+                    } else {
+                        validMoves.add(nextMove);
+                    }
+                    nextMove = null;
+                }
+            }
+        }
+        return validMoves;
+    }
+
+    // Jump Move
     public Piece findTakePiece(Piece current, Position nextPosition) {
         Position currentPosition = current.getPosition();
         int newRow = 0;
@@ -153,7 +213,7 @@ public class Board {
             newRow = takePosition.getRow() - 1;
         }
 
-        if (newRow >= size - 1 || newCol >= size) {
+        if (newRow >= size || newCol >= size) {
             return null;
         }
         if (newRow < 0 || newCol < 0) {
@@ -166,6 +226,8 @@ public class Board {
         }
         return null;
     }
+
+    // Getters
 
     public boolean pieceAt(int row, int col) {
         if (row >= size || col >= size) {
@@ -183,7 +245,6 @@ public class Board {
         int col = position.getCol();
         return (pieceAt(row, col));
     }
-
 
     public Piece getPieceAt(int row, int col) {
         if (pieceAt(row, col)) {

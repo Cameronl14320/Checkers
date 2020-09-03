@@ -9,6 +9,7 @@ public class Piece {
     public static Color PLAYER_TWO_INNER = new Color(172, 166, 139);
     public static Color PLAYER_TWO_OUTER = new Color(210, 202, 178);
     public static Color SELECT_HIGHLIGHT = new Color(206, 187, 45);
+    public static Color PROMOTED_CROWN = new Color(132, 17, 196);
 
     private boolean isPromoted = false;
     private boolean isHighlighted = false;
@@ -32,6 +33,14 @@ public class Piece {
 
     public boolean matchingPlayer(int player) {
         return player == this.player;
+    }
+
+    public void setPromoted(boolean state) {
+        if (state) {
+            isPromoted = true;
+        } else {
+            isPromoted = false;
+        }
     }
 
     public void setHighlight(boolean selected) {
@@ -65,10 +74,14 @@ public class Piece {
 
         // Outer Circle
         border = rectSize/8;
-        if (isBlack()) {
-            g.setColor(PLAYER_ONE_OUTER);
+        if (isPromoted) {
+            g.setColor(PROMOTED_CROWN);
         } else {
-            g.setColor(PLAYER_TWO_OUTER);
+            if (isBlack()) {
+                g.setColor(PLAYER_ONE_OUTER);
+            } else {
+                g.setColor(PLAYER_TWO_OUTER);
+            }
         }
         g.fillOval(border/2 + (position.getCol() * rectSize), border/2 + (position.getRow() * rectSize),
                 rectSize - border, rectSize - border);
@@ -82,6 +95,7 @@ public class Piece {
         }
         g.fillOval(border/2 + (position.getCol() * rectSize), border/2 + (position.getRow() * rectSize),
                 rectSize - border, rectSize - border);
+
     }
 
     @Override

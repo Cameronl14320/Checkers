@@ -21,6 +21,7 @@ public class Game extends JPanel {
     private int currentPlayer;
     private Stack<Move> previousMoves;
     private ArrayList<Move> validMoves;
+    private boolean mustJump = false;
 
     // Display
     private Piece selectedPiece;
@@ -38,33 +39,64 @@ public class Game extends JPanel {
         new Timer(delay, e->repaint()).start();
     }
 
-    public void handleActions(MouseEvent e) {
+    public void convertMouse(MouseEvent e) {
         int row = e.getY()/rectSize;
         int col = e.getX()/rectSize;
+        handleActions(row, col);
+    }
 
+    public void handleActions(int row, int col) {
         Piece newSelect = currentBoard.getPieceAt(row, col);
         if (newSelect != null) {
-            //if (newSelect.matchingPlayer(currentPlayer)){
-                newSelect.setHighlight(true);
-                if (selectedPiece != null && newSelect != selectedPiece) {
-                    selectedPiece.setHighlight(false);
+            if (!mustJump) {
+                if (newSelect.matchingPlayer(currentPlayer)) {
+                    newSelect.setHighlight(true);
+                    if (selectedPiece != null && newSelect != selectedPiece) {
+                        selectedPiece.setHighlight(false);
+                    }
+                    selectedPiece = newSelect;
+                    currentBoard.getValidPositions(selectedPiece, false);
                 }
-                selectedPiece = newSelect;
-                currentBoard.getValidMoves(selectedPiece);
-            //}
+            }
         } else {
             if (selectedPiece != null) {
                 selectedPosition = currentBoard.getPositionAt(row, col);
                 if (selectedPosition != null) {
                     Piece takePiece = currentBoard.findTakePiece(selectedPiece, selectedPosition);
-                    Move newMove = null;
+                    Move newMove;
                     if (takePiece != null) {
                         newMove = new Jump(selectedPiece, takePiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
                     } else {
                         newMove = new Forward(selectedPiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
                     }
                     if (newMove != null) {
-                        newMove.apply(currentBoard);
+                        if (mustJump && !newMove.getClass().equals(Jump.class)) {
+                            return;
+                        }
+                        if (newMove.apply(currentBoard)) {
+                            currentBoard.checkPromoted(selectedPiece);
+                            previousMoves.add(newMove);
+                            currentBoard.removeHighlights();
+                            mustJump = false;
+                            if (newMove.getClass().equals(Jump.class)) {
+                                ArrayList<Move> validMoves = currentBoard.getValidMoves(selectedPiece, true);
+                                for (Move m : validMoves) {
+                                    if (m.getClass().equals(Jump.class)) {
+                                        mustJump = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (mustJump) {
+                                currentBoard.getValidPositions(selectedPiece, true);
+                                selectedPosition = null;
+                            } else {
+                                selectedPiece.setHighlight(false);
+                                selectedPiece = null;
+                                selectedPosition = null;
+                                changeTurn();
+                            }
+                        }
                     }
                 }
             }

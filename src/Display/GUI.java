@@ -24,7 +24,7 @@ public class GUI {
         game.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                game.handleActions(e);
+                game.convertMouse(e);
             }
         });
         gameFrame.add(game);
