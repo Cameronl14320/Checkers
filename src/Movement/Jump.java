@@ -73,6 +73,15 @@ public class Jump implements Move {
         if (!isValid()) {
             return;
         }
-        return;
+        movingPiece.setPosition(nextPosition);
+        board.removePiece(currentPosition);
+        board.removePiece(takePiece.getPosition());
+        board.addCaptured(takePiece.getPlayer(), takePiece);
+        board.addPiece(movingPiece, nextPosition);
+    }
+
+    @Override
+    public void undo(Board board) {
+
     }
 }

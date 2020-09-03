@@ -10,4 +10,6 @@ public interface Move {
 
     public void apply(Board board);
 
+    public void undo(Board board);
+
 }

@@ -12,25 +12,28 @@ import java.util.Stack;
 
 public class Game extends JPanel {
 
-    private Board currentBoard;
-    private Stack<Board> previousBoards;
-
-    private int currentPlayer;
+    // Core
     private final int size;
-    private Piece selectedPiece;
-    private Position selectedPosition;
+    private final int rowsOfPieces;
+    private Board currentBoard;
 
+    // Gameplay
+    private int currentPlayer;
+    private Stack<Move> previousMoves;
     private ArrayList<Move> validMoves;
 
+    // Display
+    private Piece selectedPiece;
+    private Position selectedPosition;
     private int delay = 40; // 40ms repaint delay
     private int rectSize = 20;
 
     public Game() {
         currentPlayer = 1;
         size = 8;
-        int rowsOfPieces = 3;
+        rowsOfPieces = 3;
+        previousMoves = new Stack<Move>();
 
-        previousBoards = new Stack<Board>();
         initBoard(size, rowsOfPieces);
         new Timer(delay, e->repaint()).start();
     }
@@ -51,10 +54,18 @@ public class Game extends JPanel {
             //}
         } else {
             if (selectedPiece != null) {
-                Board newBoard = null;
                 selectedPosition = currentBoard.getPositionAt(row, col);
                 if (selectedPosition != null) {
-
+                    Piece takePiece = currentBoard.findTakePiece(selectedPiece, selectedPosition);
+                    Move newMove = null;
+                    if (takePiece != null) {
+                        newMove = new Jump(selectedPiece, takePiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
+                    } else {
+                        newMove = new Forward(selectedPiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
+                    }
+                    if (newMove != null) {
+                        newMove.apply(currentBoard);
+                    }
                 }
             }
         }
@@ -67,7 +78,6 @@ public class Game extends JPanel {
             currentPlayer = 1;
         }
     }
-
 
     public void initBoard(int size, int rowsOfPieces) {
         this.currentBoard = new Board(size, rowsOfPieces); // Create an 8*8 board

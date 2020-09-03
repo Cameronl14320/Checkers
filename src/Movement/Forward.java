@@ -70,6 +70,13 @@ public class Forward implements Move {
         if (!isValid()) {
             return;
         }
-        return;
+        movingPiece.setPosition(nextPosition);
+        board.removePiece(currentPosition);
+        board.addPiece(movingPiece, nextPosition);
+    }
+
+    @Override
+    public void undo(Board board) {
+
     }
 }

@@ -5,9 +5,7 @@ import Movement.Jump;
 import Movement.Move;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Board {
 
@@ -16,16 +14,16 @@ public class Board {
     private int size;
     private int rowsOfPieces;
 
-    private int capturedBlack;
-    private int capturedWhite;
+    private Set<Piece> capturedBlack;
+    private Set<Piece> capturedWhite;
 
     private ArrayList<Position> validPositions;
 
     public Board(int size, int rowsOfPieces) {
         this.size = size;
         this.rowsOfPieces = rowsOfPieces;
-        this.capturedBlack = 0;
-        this.capturedWhite = 0;
+        this.capturedBlack = new HashSet<>();
+        this.capturedWhite = new HashSet<>();
 
         validPositions = new ArrayList<>();
         pieces = new HashMap<>();
@@ -46,6 +44,30 @@ public class Board {
         }
     }
 
+    public void addPiece(Piece piece, Position position) {
+        pieces.put(position, piece);
+    }
+
+    public void removePiece(Position position) {
+        pieces.remove(position);
+    }
+
+    public void addCaptured(int player, Piece piece) {
+        if (player == 1) {
+            capturedBlack.add(piece);
+        } else {
+            capturedWhite.add(piece);
+        }
+    }
+
+    public void removeCaptured(int player, Piece piece) {
+        if (player == 1) {
+            capturedBlack.remove(piece);
+        } else {
+            capturedWhite.remove(piece);
+        }
+    }
+
     public void getValidMoves(Piece piece) {
         for (Position p : validPositions) {
             p.setHighlightTile(false);
@@ -55,7 +77,7 @@ public class Board {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Position nextPosition = positions[row][col];
-                Piece takePiece = pieces[row][col];
+                Piece takePiece = pieces.get(positions[row][col]);
                 // Determine if able to take a piece
                 if (takePiece != null) {
                     nextPosition = findJumpPosition(piece, takePiece);
@@ -106,8 +128,8 @@ public class Board {
         }
 
         // Return if valid position
-        if (pieces[newRow][newCol] != null && pieces[newRow][newCol] != current) {
-            return pieces[newRow][newCol];
+        if (pieces.get(positions[newRow][newCol]) != null && pieces.get(positions[newRow][newCol]) != current) {
+            return pieces.get(positions[newRow][newCol]);
         }
         return null;
     }
@@ -153,7 +175,7 @@ public class Board {
         if (row < 0 || col < 0) {
             return false;
         }
-        return (pieces[row][col] != null);
+        return (pieces.get(positions[row][col]) != null);
     }
 
     public boolean pieceAt(Position position) {
@@ -162,18 +184,19 @@ public class Board {
         return (pieceAt(row, col));
     }
 
-    public Piece getPieceAt(Position position) {
-        if (pieceAt(position)) {
-            int row = position.getRow();
-            int col = position.getCol();
-            return pieces[row][col];
+
+    public Piece getPieceAt(int row, int col) {
+        if (pieceAt(row, col)) {
+            return pieces.get(positions[row][col]);
         }
         return null;
     }
 
-    public Piece getPieceAt(int row, int col) {
-        if (pieceAt(row, col)) {
-            return pieces[row][col];
+    public Piece getPieceAt(Position position) {
+        if (pieceAt(position)) {
+            int row = position.getRow();
+            int col = position.getCol();
+            return pieces.get(positions[row][col]);
         }
         return null;
     }
@@ -235,13 +258,8 @@ public class Board {
         }
 
         // Draw Board Pieces
-        for (int row = 0; row < pieces.length; row++) {
-            for (int col = 0; col < pieces[0].length; col++) {
-                Piece piece = pieces[row][col];
-                if (piece != null) {
-                    piece.paint(g, rectSize);
-                }
-            }
+        for (Position pos : pieces.keySet()) {
+            pieces.get(pos).paint(g, rectSize);
         }
     }
 
@@ -256,10 +274,14 @@ public class Board {
         }
         boardString.append("\n");
 
-        for (int row = 0; row < pieces.length; row++) {
-            for (int col = 0; col < pieces[0].length; col++) {
-                if (pieces[row][col] != null) {
-                    boardString.append(pieces[row][col].toString());
+        for (Position pos : pieces.keySet()) {
+            boardString.append(pieces.get(pos));
+        }
+
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                if (pieces.get(positions[row][col]) != null) {
+                    boardString.append(pieces.get(positions[row][col].toString()));
                 } else {
                     boardString.append("|_");
                 }
@@ -268,6 +290,4 @@ public class Board {
         }
         return boardString.toString();
     }
-
-
 }
