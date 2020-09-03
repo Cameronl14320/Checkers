@@ -29,6 +29,7 @@ public class Game extends JPanel {
     private int delay = 40; // 40ms repaint delay
     private int rectSize = 20;
 
+
     public Game() {
         currentPlayer = 1;
         size = 8;
@@ -48,58 +49,63 @@ public class Game extends JPanel {
     public void handleActions(int row, int col) {
         Piece newSelect = currentBoard.getPieceAt(row, col);
         if (newSelect != null) {
-            if (!mustJump) {
-                if (newSelect.matchingPlayer(currentPlayer)) {
-                    newSelect.setHighlight(true);
-                    if (selectedPiece != null && newSelect != selectedPiece) {
-                        selectedPiece.setHighlight(false);
+            handleSelection(newSelect);
+        } else if (selectedPiece != null) {
+            selectedPosition = currentBoard.getPositionAt(row, col);
+            if (selectedPosition != null) {
+                Piece takePiece = currentBoard.findTakePiece(selectedPiece, selectedPosition);
+                Move newMove = forwardOrJump(takePiece);
+                if (newMove != null) {
+                    if (mustJump && !newMove.getClass().equals(Jump.class)) {
+                        return;
                     }
-                    selectedPiece = newSelect;
-                    currentBoard.getValidPositions(selectedPiece, false);
-                }
-            }
-        } else {
-            if (selectedPiece != null) {
-                selectedPosition = currentBoard.getPositionAt(row, col);
-                if (selectedPosition != null) {
-                    Piece takePiece = currentBoard.findTakePiece(selectedPiece, selectedPosition);
-                    Move newMove;
-                    if (takePiece != null) {
-                        newMove = new Jump(selectedPiece, takePiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
-                    } else {
-                        newMove = new Forward(selectedPiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
-                    }
-                    if (newMove != null) {
-                        if (mustJump && !newMove.getClass().equals(Jump.class)) {
-                            return;
-                        }
-                        if (newMove.apply(currentBoard)) {
-                            currentBoard.checkPromoted(selectedPiece);
-                            previousMoves.add(newMove);
-                            currentBoard.removeHighlights();
-                            mustJump = false;
-                            if (newMove.getClass().equals(Jump.class)) {
-                                ArrayList<Move> validMoves = currentBoard.getValidMoves(selectedPiece, true);
-                                for (Move m : validMoves) {
-                                    if (m.getClass().equals(Jump.class)) {
-                                        mustJump = true;
-                                        break;
-                                    }
+                    if (newMove.apply(currentBoard)) {
+                        currentBoard.checkPromoted(selectedPiece);
+                        previousMoves.add(newMove);
+                        currentBoard.removeHighlights();
+                        mustJump = false;
+                        if (newMove.getClass().equals(Jump.class)) {
+                            ArrayList<Move> validMoves = currentBoard.getValidMoves(selectedPiece, true);
+                            for (Move m : validMoves) {
+                                if (m.getClass().equals(Jump.class)) {
+                                    mustJump = true;
+                                    break;
                                 }
                             }
-                            if (mustJump) {
-                                currentBoard.getValidPositions(selectedPiece, true);
-                                selectedPosition = null;
-                            } else {
-                                selectedPiece.setHighlight(false);
-                                selectedPiece = null;
-                                selectedPosition = null;
-                                changeTurn();
-                            }
+                        }
+                        if (mustJump) {
+                            currentBoard.getValidPositions(selectedPiece, true);
+                            selectedPosition = null;
+                        } else {
+                            selectedPiece.setHighlight(false);
+                            selectedPiece = null;
+                            selectedPosition = null;
+                            changeTurn();
                         }
                     }
                 }
             }
+        }
+    }
+
+    public void handleSelection(Piece newSelect) {
+        if (!mustJump) {
+            if (newSelect.matchingPlayer(currentPlayer)) {
+                newSelect.setHighlight(true);
+                if (selectedPiece != null && newSelect != selectedPiece) {
+                    selectedPiece.setHighlight(false);
+                }
+                selectedPiece = newSelect;
+                currentBoard.getValidPositions(selectedPiece, false);
+            }
+        }
+    }
+
+    public Move forwardOrJump(Piece takePiece) {
+        if (takePiece != null) {
+            return new Jump(selectedPiece, takePiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
+        } else {
+            return new Forward(selectedPiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
         }
     }
 
