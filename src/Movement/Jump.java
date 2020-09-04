@@ -5,12 +5,12 @@ import Game.Piece;
 import Game.Position;
 
 public class Jump implements Move {
-    private Piece movingPiece;
-    private Piece takePiece;
-    private Position currentPosition;
-    private Position nextPosition;
+    private final Piece movingPiece;
+    private final Piece takePiece;
+    private final Position currentPosition;
+    private final Position nextPosition;
 
-    private boolean pieceAtNext;
+    private final boolean pieceAtNext;
 
 
     public Jump(Piece piece, Piece takePiece, Position nextPosition, boolean pieceAtNext) {
@@ -83,6 +83,14 @@ public class Jump implements Move {
 
     @Override
     public void undo(Board board) {
+        movingPiece.setPosition(currentPosition);
+        board.removePiece(nextPosition);
+        board.addPiece(takePiece, takePiece.getPosition());
+        board.removeCaptured(takePiece.getPlayer(), takePiece);
+        board.addPiece(movingPiece, currentPosition);
+    }
 
+    public Position getNextPosition() {
+        return this.nextPosition;
     }
 }

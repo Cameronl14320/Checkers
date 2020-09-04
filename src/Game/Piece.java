@@ -9,10 +9,12 @@ public class Piece {
     public static Color PLAYER_TWO_INNER = new Color(172, 166, 139);
     public static Color PLAYER_TWO_OUTER = new Color(210, 202, 178);
     public static Color SELECT_HIGHLIGHT = new Color(206, 187, 45);
+    public static Color MOVABLE_HIGHLIGHT = new Color(0x43B443);
     public static Color PROMOTED_CROWN = new Color(132, 17, 196);
 
     private boolean isPromoted = false;
-    private boolean isHighlighted = false;
+    private boolean isSelected = false;
+    private boolean isMovable = false;
 
     private final int player; // 1 for BLACK, 0 for WHITE
     private Position position;
@@ -43,11 +45,19 @@ public class Piece {
         }
     }
 
-    public void setHighlight(boolean selected) {
+    public void setSelected(boolean selected) {
         if (selected) {
-            isHighlighted = true;
+            isSelected = true;
         } else {
-            isHighlighted = false;
+            isSelected = false;
+        }
+    }
+
+    public void setMovable(boolean selected) {
+        if (selected) {
+            isMovable = true;
+        } else {
+            isMovable = false;
         }
     }
 
@@ -66,8 +76,12 @@ public class Piece {
     public void paint(Graphics g, int rectSize) {
         // Highlight
         int border = rectSize/16;
-        if (isHighlighted) {
+        if (isSelected) {
             g.setColor(SELECT_HIGHLIGHT);
+            g.fillOval(border/2 + (position.getCol() * rectSize), border/2 + (position.getRow() * rectSize),
+                    rectSize - border, rectSize - border);
+        } else if (isMovable) {
+            g.setColor(MOVABLE_HIGHLIGHT);
             g.fillOval(border/2 + (position.getCol() * rectSize), border/2 + (position.getRow() * rectSize),
                     rectSize - border, rectSize - border);
         }

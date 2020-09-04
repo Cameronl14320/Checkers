@@ -11,8 +11,8 @@ public class Board {
 
     private static Position[][] positions;
     private Map<Position, Piece> pieces;
-    private int size;
-    private int rowsOfPieces;
+    private final int size;
+    private final int rowsOfPieces;
 
     private Set<Piece> capturedBlack;
     private Set<Piece> capturedWhite;
@@ -32,11 +32,11 @@ public class Board {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 if (positions[row][col].isBlack()) {
-                    if (row >= 0 && row < rowsOfPieces) {
+                    if (row < rowsOfPieces) {
                         pieces.put(positions[row][col], new Piece(0, positions[row][col]));
                     }
 
-                    if (row >= (size - rowsOfPieces) && row < size) {
+                    if (row >= (size - rowsOfPieces)) {
                         pieces.put(positions[row][col], new Piece(1, positions[row][col]));
                     }
                 }
@@ -68,12 +68,54 @@ public class Board {
         }
     }
 
-    public void removeHighlights() {
+    public void removePositionHighlights() {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 positions[row][col].setHighlightTile(false);
             }
         }
+    }
+
+    public void highlightMovable(int player) {
+        for (Position pos : pieces.keySet()) {
+            Piece p = pieces.get(pos);
+            if (p.matchingPlayer(player)) {
+                ArrayList<Move> validMoves = getValidMoves(p, false);
+                if (!validMoves.isEmpty()) {
+                    p.setMovable(true);
+                }
+            }
+        }
+    }
+
+    public void removePieceHighlights() {
+        for (Position pos : pieces.keySet()) {
+            Piece p = pieces.get(pos);
+            p.setMovable(false);
+            p.setSelected(false);
+        }
+    }
+
+    public boolean canAnyJump(int player) {
+        for (Position pos : pieces.keySet()) {
+            Piece p = pieces.get(pos);
+            if (p.matchingPlayer(player)) {
+                if (canJump(p)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean canJump(Piece piece) {
+        ArrayList<Move> validMoves = getValidMoves(piece, true);
+        for (Move m : validMoves) {
+            if (m.getClass().equals(Jump.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void checkPromoted(Piece piece) {
@@ -93,36 +135,11 @@ public class Board {
             p.setHighlightTile(false);
         }
         validPositions = new ArrayList<>();
-        Move nextMove = null;
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++) {
-                Position nextPosition = positions[row][col];
-                Piece takePiece = pieces.get(positions[row][col]);
-                // Determine if able to take a piece
-                if (takePiece != null) {
-                    nextPosition = findJumpPosition(piece, takePiece);
-                    if (nextPosition != null) {
-                        nextMove = new Jump(piece, takePiece, nextPosition, pieceAt(nextPosition));
-                    }
-                    // Determine if standard movement available
-                } else {
-                    nextMove = new Forward(piece, nextPosition, pieceAt(nextPosition));
-                }
-                // Add it to available moves
-                if (nextMove != null && nextMove.isValid()) {
-                    if (mustJump) {
-                        if (nextMove.getClass().equals(Jump.class)) {
-                            validPositions.add(nextPosition);
-                        }
-                    } else {
-                        validPositions.add(nextPosition);
-                    }
-                    nextMove = null;
-                }
-            }
-        }
 
-        for (Position p: validPositions) {
+        ArrayList<Move> validMoves = getValidMoves(piece, mustJump);
+
+        for (Move m : validMoves) {
+            Position p = m.getNextPosition();
             p.setHighlightTile(true);
         }
     }
@@ -157,14 +174,38 @@ public class Board {
                 }
             }
         }
+
+        if (piece.getIsPromoted()) {
+            boolean canJump = false;
+            ArrayList<Move> removeMoves = new ArrayList<>();
+            for (Move m : validMoves) {
+                if (m.getClass().equals(Jump.class)) {
+                    canJump = true;
+                } else {
+                    removeMoves.add(m);
+                }
+            }
+            if (canJump) {
+                for (Move m : removeMoves) {
+                    validMoves.remove(m);
+                }
+            }
+        }
         return validMoves;
     }
 
     // Jump Move
     public Piece findTakePiece(Piece current, Position nextPosition) {
         Position currentPosition = current.getPosition();
-        int newRow = 0;
-        int newCol = 0;
+        int newRow;
+        int newCol;
+
+        if (currentPosition.getCol() == nextPosition.getCol()) {
+            return null;
+        }
+        if (currentPosition.getRow() == nextPosition.getRow()) {
+            return null;
+        }
 
         // Determine Column after Taken Piece
         if (currentPosition.getCol() < nextPosition.getCol()) {
@@ -197,8 +238,8 @@ public class Board {
     public Position findJumpPosition(Piece current, Piece take) {
         Position currentPosition = current.getPosition();
         Position takePosition = take.getPosition();
-        int newRow = 0;
-        int newCol = 0;
+        int newRow;
+        int newCol;
 
         // Determine Column after Taken Piece
         if (currentPosition.getCol() < takePosition.getCol()) {
@@ -312,8 +353,8 @@ public class Board {
     }
 
     public void paint(Graphics g, int rectSize) {
-        for (int row = 0; row < positions.length; row++) {
-            for (int col = 0; col < positions[0].length; col++) {
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
                 positions[row][col].paint(g, rectSize);
             }
         }
@@ -327,8 +368,8 @@ public class Board {
     @Override
     public String toString() {
         StringBuilder boardString = new StringBuilder();
-        for (int row = 0; row < positions.length; row++) {
-            for (int col = 0; col < positions[0].length; col++) {
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
                 boardString.append(positions[row][col].toString());
             }
             boardString.append("|\n");
@@ -342,7 +383,7 @@ public class Board {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 if (pieces.get(positions[row][col]) != null) {
-                    boardString.append(pieces.get(positions[row][col].toString()));
+                    boardString.append(pieces.get(positions[row][col]).toString());
                 } else {
                     boardString.append("|_");
                 }

@@ -5,11 +5,11 @@ import Game.Piece;
 import Game.Position;
 
 public class Forward implements Move {
-    private Piece movingPiece;
-    private Position currentPosition;
-    private Position nextPosition;
+    private final Piece movingPiece;
+    private final Position currentPosition;
+    private final Position nextPosition;
 
-    private boolean pieceAtNext;
+    private final boolean pieceAtNext;
 
 
     public Forward(Piece piece, Position nextPosition, boolean pieceAtNext) {
@@ -30,7 +30,7 @@ public class Forward implements Move {
         if (currentPosition.equals(nextPosition)) {
             return false;
         }
-        // Only allow forward movement unless promoted
+        // Only allow forward movement and one place movement unless promoted
         if (!movingPiece.getIsPromoted()) {
             if (movingPiece.isBlack()) {
                 if (nextRow > currentPosition.getRow()) {
@@ -42,15 +42,25 @@ public class Forward implements Move {
                 }
             }
         }
-        // Cannot move directly forward
-        if (nextCol - currentPosition.getCol() == 0) {
-            return false;
-        }
+
         // Can only move forward one position
         if (Math.abs(nextCol - currentCol) != 1) {
             return false;
         }
+        // Can only move forward
         if (Math.abs(nextRow - currentRow) != 1) {
+            return false;
+        }
+        // As diagonal Movement, dy/dy = 1
+        if (Math.abs(nextRow - currentRow) != Math.abs(nextCol - currentCol)) {
+            return false;
+        }
+        // Cannot move directly forward
+        if (nextCol - currentPosition.getCol() == 0) {
+            return false;
+        }
+        // Cannot move directly to the side
+        if (nextRow - currentPosition.getRow() == 0) {
             return false;
         }
         // Can only move onto Dark tiles
@@ -78,6 +88,12 @@ public class Forward implements Move {
 
     @Override
     public void undo(Board board) {
+        movingPiece.setPosition(currentPosition);
+        board.removePiece(nextPosition);
+        board.addPiece(movingPiece, currentPosition);
+    }
 
+    public Position getNextPosition() {
+        return this.nextPosition;
     }
 }
