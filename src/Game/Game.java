@@ -7,6 +7,7 @@ import Movement.Move;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Stack;
 
 public class Game extends JPanel {
@@ -19,9 +20,7 @@ public class Game extends JPanel {
     // Gameplay
     private int currentPlayer;
     private Stack<Move> previousMoves;
-    private boolean mustJump = false;
-    private boolean forceJump = true;
-    private boolean playerCanJump = false;
+    private boolean forceJump = false;
 
     // Display
     private Piece selectedPiece;
@@ -36,7 +35,6 @@ public class Game extends JPanel {
         initBoard(size, rowsOfPieces);
         new Timer(delay, e->repaint()).start();
 
-        playerCanJump = currentBoard.canAnyJump(currentPlayer);
         currentBoard.highlightMovable(currentPlayer);
     }
 
@@ -53,7 +51,7 @@ public class Game extends JPanel {
         } else if (selectedPiece != null) {
             selectedPosition = currentBoard.getPositionAt(row, col);
             if (selectedPosition != null) {
-                Piece takePiece = currentBoard.findTakePiece(selectedPiece, selectedPosition);
+                ArrayList<Piece> takePiece = currentBoard.findTakePiece(selectedPiece, selectedPosition);
                 Move newMove = forwardOrJump(takePiece);
                 if (forceJump) {
                     if (currentBoard.canAnyJump(currentPlayer) && newMove.getClass().equals(Forward.class)) {
@@ -91,8 +89,8 @@ public class Game extends JPanel {
         repaint();
     }
 
-    public Move forwardOrJump(Piece takePiece) {
-        if (takePiece != null) {
+    public Move forwardOrJump(ArrayList<Piece> takePiece) {
+        if (!takePiece.isEmpty()) {
             return new Jump(selectedPiece, takePiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
         } else {
             return new Forward(selectedPiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
@@ -105,7 +103,6 @@ public class Game extends JPanel {
         } else {
             currentPlayer = 1;
         }
-        playerCanJump = currentBoard.canAnyJump(currentPlayer);
         currentBoard.highlightMovable(currentPlayer);
     }
 
@@ -120,53 +117,3 @@ public class Game extends JPanel {
         currentBoard.paint(g, rectSize);
     }
 }
-
-    /*
-    public void handleActions(int row, int col) {
-        Piece newSelect = currentBoard.getPieceAt(row, col);
-        if (newSelect != null) {
-            handleSelection(newSelect);
-        } else if (selectedPiece != null) {
-            selectedPosition = currentBoard.getPositionAt(row, col);
-            if (selectedPosition != null) {
-                Piece takePiece = currentBoard.findTakePiece(selectedPiece, selectedPosition);
-                Move newMove = forwardOrJump(takePiece);
-                if (newMove != null) {
-                    if (mustJump && !newMove.getClass().equals(Jump.class)) {
-                        return;
-                    }
-                    if (selectedPiece.getIsPromoted() && currentBoard.canJump(selectedPiece)) {
-                        if (newMove.getClass().equals(Forward.class)) {
-                            return;
-                        }
-                    }
-
-                    if (newMove.apply(currentBoard)) {
-                        currentBoard.checkPromoted(selectedPiece);
-                        previousMoves.add(newMove);
-                        currentBoard.removeHighlights();
-                        mustJump = false;
-                        if (newMove.getClass().equals(Jump.class)) {
-                            ArrayList<Move> validMoves = currentBoard.getValidMoves(selectedPiece, true);
-                            for (Move m : validMoves) {
-                                if (m.getClass().equals(Jump.class)) {
-                                    mustJump = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (mustJump) {
-                            currentBoard.getValidPositions(selectedPiece, true);
-                            selectedPosition = null;
-                        } else {
-                            selectedPiece.setHighlight(false);
-                            selectedPiece = null;
-                            selectedPosition = null;
-                            changeTurn();
-                        }
-                    }
-                }
-            }
-        }
-    }
-     */

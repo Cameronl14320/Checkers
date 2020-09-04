@@ -51,10 +51,12 @@ public class Forward implements Move {
         if (Math.abs(nextRow - currentRow) != 1) {
             return false;
         }
+
         // As diagonal Movement, dy/dy = 1
         if (Math.abs(nextRow - currentRow) != Math.abs(nextCol - currentCol)) {
             return false;
         }
+
         // Cannot move directly forward
         if (nextCol - currentPosition.getCol() == 0) {
             return false;
@@ -63,6 +65,7 @@ public class Forward implements Move {
         if (nextRow - currentPosition.getRow() == 0) {
             return false;
         }
+
         // Can only move onto Dark tiles
         if (!nextPosition.isBlack()) {
             return false;

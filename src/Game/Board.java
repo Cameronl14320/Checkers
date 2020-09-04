@@ -6,6 +6,7 @@ import Movement.Move;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Board {
 
@@ -150,12 +151,12 @@ public class Board {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Position nextPosition = positions[row][col];
-                Piece takePiece = pieces.get(positions[row][col]);
+                ArrayList<Piece> takePieces = findTakePiece(piece, nextPosition);
                 // Determine if able to take a piece
-                if (takePiece != null) {
-                    nextPosition = findJumpPosition(piece, takePiece);
+                if (!takePieces.isEmpty()) {
+                    //nextPosition = findJumpPosition(piece, takePieces);
                     if (nextPosition != null) {
-                        nextMove = new Jump(piece, takePiece, nextPosition, pieceAt(nextPosition));
+                        nextMove = new Jump(piece, takePieces, nextPosition, pieceAt(nextPosition));
                     }
                     // Determine if standard movement available
                 } else {
@@ -195,44 +196,48 @@ public class Board {
     }
 
     // Jump Move
-    public Piece findTakePiece(Piece current, Position nextPosition) {
+    public ArrayList<Piece> findTakePiece(Piece current, Position nextPosition) {
+        ArrayList<Piece> takePieces = new ArrayList<>();
         Position currentPosition = current.getPosition();
+        Position newPosition = currentPosition;
         int newRow;
         int newCol;
 
-        if (currentPosition.getCol() == nextPosition.getCol()) {
-            return null;
-        }
-        if (currentPosition.getRow() == nextPosition.getRow()) {
-            return null;
-        }
+        while (newPosition != nextPosition) {
+            if (newPosition.getCol() == nextPosition.getCol()) {
+                break;
+            }
+            if (newPosition.getRow() == nextPosition.getRow()) {
+                break;
+            }
 
-        // Determine Column after Taken Piece
-        if (currentPosition.getCol() < nextPosition.getCol()) {
-            newCol = nextPosition.getCol() - 1;
-        } else {
-            newCol = nextPosition.getCol() + 1;
-        }
+            // Determine Column after Taken Piece
+            if (newPosition.getCol() < nextPosition.getCol()) {
+                newCol = nextPosition.getCol() - 1;
+            } else {
+                newCol = nextPosition.getCol() + 1;
+            }
 
-        // Determine Row after Taken Piece
-        if (currentPosition.getRow() < nextPosition.getRow()) {
-            newRow = nextPosition.getRow() - 1;
-        } else {
-            newRow = nextPosition.getRow() + 1;
-        }
+            // Determine Row after Taken Piece
+            if (newPosition.getRow() < nextPosition.getRow()) {
+                newRow = nextPosition.getRow() - 1;
+            } else {
+                newRow = nextPosition.getRow() + 1;
+            }
 
-        if (newRow >= size - 1 || newCol >= size) {
-            return null;
-        }
-        if (newRow < 0 || newCol < 0) {
-            return null;
-        }
+            if (newRow >= size - 1 || newCol >= size) {
+                break;
+            }
+            if (newRow < 0 || newCol < 0) {
+                break;
+            }
 
-        // Return if valid position
-        if (pieces.get(positions[newRow][newCol]) != null && pieces.get(positions[newRow][newCol]) != current) {
-            return pieces.get(positions[newRow][newCol]);
+            // Return if valid position
+            if (pieces.get(positions[newRow][newCol]) != null && pieces.get(positions[newRow][newCol]) != current) {
+                takePieces.add(pieces.get(positions[newRow][newCol]));
+            }
         }
-        return null;
+        return takePieces;
     }
 
     public Position findJumpPosition(Piece current, Piece take) {

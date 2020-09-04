@@ -4,21 +4,28 @@ import Game.Board;
 import Game.Piece;
 import Game.Position;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Jump implements Move {
     private final Piece movingPiece;
-    private final Piece takePiece;
+    private final ArrayList<Piece> takePieces;
     private final Position currentPosition;
     private final Position nextPosition;
 
     private final boolean pieceAtNext;
 
 
-    public Jump(Piece piece, Piece takePiece, Position nextPosition, boolean pieceAtNext) {
+    public Jump(Piece piece, List<Piece> takePieces, Position nextPosition, boolean pieceAtNext) {
         this.movingPiece = piece;
-        this.takePiece = takePiece;
+        this.takePieces = new ArrayList<>();
         this.currentPosition = piece.getPosition();
         this.nextPosition = nextPosition;
         this.pieceAtNext = pieceAtNext;
+
+        for (Piece p : takePieces) {
+            this.takePieces.add(p);
+        }
     }
 
     @Override
@@ -49,6 +56,20 @@ public class Jump implements Move {
             return false;
         }
 
+        // As diagonal Movement, dy/dy = 1
+        if (Math.abs(nextRow - currentRow) != Math.abs(nextCol - currentCol)) {
+            return false;
+        }
+
+        // Cannot move directly forward
+        if (nextCol - currentPosition.getCol() == 0) {
+            return false;
+        }
+        // Cannot move directly to the side
+        if (nextRow - currentPosition.getRow() == 0) {
+            return false;
+        }
+
         // Can only move forward two position
         if (Math.abs(nextCol - currentCol) != 2) {
             return false;
@@ -57,9 +78,12 @@ public class Jump implements Move {
             return false;
         }
 
-        if (movingPiece.getPlayer() == takePiece.getPlayer()) {
-            return false;
+        for (Piece p : takePieces) {
+            if (movingPiece.getPlayer() == p.getPlayer()) {
+                return false;
+            }
         }
+
 
         if (pieceAtNext) {
             return false;
@@ -75,8 +99,10 @@ public class Jump implements Move {
         }
         movingPiece.setPosition(nextPosition);
         board.removePiece(currentPosition);
-        board.removePiece(takePiece.getPosition());
-        board.addCaptured(takePiece.getPlayer(), takePiece);
+        for (Piece p : takePieces) {
+            board.removePiece(p.getPosition());
+            board.addCaptured(p.getPlayer(), p);
+        }
         board.addPiece(movingPiece, nextPosition);
         return true;
     }
@@ -85,8 +111,10 @@ public class Jump implements Move {
     public void undo(Board board) {
         movingPiece.setPosition(currentPosition);
         board.removePiece(nextPosition);
-        board.addPiece(takePiece, takePiece.getPosition());
-        board.removeCaptured(takePiece.getPlayer(), takePiece);
+        for (Piece p : takePieces) {
+            board.addPiece(p, p.getPosition());
+            board.removeCaptured(p.getPlayer(), p);
+        }
         board.addPiece(movingPiece, currentPosition);
     }
 
