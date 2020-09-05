@@ -61,14 +61,6 @@ public class Jump implements Move {
             return false;
         }
 
-        // Cannot move directly forward
-        if (nextCol - currentPosition.getCol() == 0) {
-            return false;
-        }
-        // Cannot move directly to the side
-        if (nextRow - currentPosition.getRow() == 0) {
-            return false;
-        }
 
         // Can only move forward two position
         if (Math.abs(nextCol - currentCol) != 2*takePieces.size()) {
@@ -120,5 +112,14 @@ public class Jump implements Move {
 
     public Position getNextPosition() {
         return this.nextPosition;
+    }
+
+    @Override
+    public Piece getCurrentPiece() {
+        return movingPiece;
+    }
+
+    public ArrayList<Piece> getTakePieces() {
+        return takePieces;
     }
 }

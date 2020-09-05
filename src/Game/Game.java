@@ -20,7 +20,7 @@ public class Game extends JPanel {
     // Gameplay
     private int currentPlayer;
     private Stack<Move> previousMoves;
-    private boolean forceJump = true;
+    private boolean forceJump = false;
 
     // Display
     private Piece selectedPiece;

@@ -81,7 +81,7 @@ public class Board {
         for (Position pos : pieces.keySet()) {
             Piece p = pieces.get(pos);
             if (p.matchingPlayer(player)) {
-                ArrayList<Move> validMoves = getValidMoves(p, false);
+                ArrayList<Move> validMoves = getValidMoves(p, false, false);
                 if (!validMoves.isEmpty()) {
                     p.setMovable(true);
                 }
@@ -110,7 +110,7 @@ public class Board {
     }
 
     public boolean canJump(Piece piece) {
-        ArrayList<Move> validMoves = getValidMoves(piece, true);
+        ArrayList<Move> validMoves = getValidMoves(piece, true, false);
         for (Move m : validMoves) {
             if (m.getClass().equals(Jump.class)) {
                 return true;
@@ -137,7 +137,7 @@ public class Board {
         }
         validPositions = new ArrayList<>();
 
-        ArrayList<Move> validMoves = getValidMoves(piece, mustJump);
+        ArrayList<Move> validMoves = getValidMoves(piece, mustJump, true);
 
         for (Move m : validMoves) {
             Position p = m.getNextPosition();
@@ -145,7 +145,7 @@ public class Board {
         }
     }
 
-    public ArrayList<Move> getValidMoves(Piece piece, boolean mustJump) {
+    public ArrayList<Move> getValidMoves(Piece piece, boolean mustJump, boolean extraJump) {
         ArrayList<Move> validMoves = new ArrayList<>();
         Move nextMove = null;
         for (int row = 0; row < size; row++) {
@@ -154,9 +154,12 @@ public class Board {
                 ArrayList<Piece> takePieces = findTakePiece(piece, nextPosition);
                 // Determine if able to take a piece
                 if (!takePieces.isEmpty()) {
-                    //nextPosition = findJumpPosition(piece, takePieces);
                     if (nextPosition != null) {
                         nextMove = new Jump(piece, takePieces, nextPosition, pieceAt(nextPosition));
+                        /* TODO: Recursion to find all Jumps from this Jump Move
+                            Use the MultiJump class to store multiple Jumps that apply in a sequence
+                         */
+
                     }
                     // Determine if standard movement available
                 } else {
@@ -194,6 +197,7 @@ public class Board {
         }
         return validMoves;
     }
+
 
     // Jump Move
     public ArrayList<Piece> findTakePiece(Piece current, Position goalPosition) {
@@ -244,13 +248,6 @@ public class Board {
     }
 
     public boolean properMovement(Position startPosition, Position goalPosition) {
-        if (startPosition.getCol() == goalPosition.getCol()) {
-            return false;
-        }
-
-        if (startPosition.getRow() == goalPosition.getRow()) {
-            return false;
-        }
 
         if (Math.abs(startPosition.getRow() - goalPosition.getRow()) != Math.abs(startPosition.getCol() - goalPosition.getCol())) {
             return false;

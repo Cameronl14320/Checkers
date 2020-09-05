@@ -99,4 +99,9 @@ public class Forward implements Move {
     public Position getNextPosition() {
         return this.nextPosition;
     }
+
+    @Override
+    public Piece getCurrentPiece() {
+        return movingPiece;
+    }
 }
