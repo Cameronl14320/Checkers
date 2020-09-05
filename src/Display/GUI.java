@@ -18,8 +18,9 @@ public class GUI {
         gameFrame.setLayout(new BorderLayout());
         gameFrame.setMinimumSize(new Dimension(800, 800));
         gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+        System.out.println("hello");
         game = new Game();
+        System.out.println("hello");
         game.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         game.addMouseListener(new MouseAdapter() {
             @Override
@@ -27,6 +28,8 @@ public class GUI {
                 game.convertMouse(e);
             }
         });
+        System.out.println("hello");
+        game.setVisible(true);
         gameFrame.add(game);
 
         gameFrame.pack();

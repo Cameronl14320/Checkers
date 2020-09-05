@@ -196,81 +196,83 @@ public class Board {
     }
 
     // Jump Move
-    public ArrayList<Piece> findTakePiece(Piece current, Position nextPosition) {
+    public ArrayList<Piece> findTakePiece(Piece current, Position goalPosition) {
         ArrayList<Piece> takePieces = new ArrayList<>();
         Position currentPosition = current.getPosition();
         Position newPosition = currentPosition;
         int newRow;
         int newCol;
 
-        while (newPosition != nextPosition) {
-            if (newPosition.getCol() == nextPosition.getCol()) {
-                break;
-            }
-            if (newPosition.getRow() == nextPosition.getRow()) {
-                break;
-            }
-
-            // Determine Column after Taken Piece
-            if (newPosition.getCol() < nextPosition.getCol()) {
-                newCol = nextPosition.getCol() - 1;
+        if (!properMovement(currentPosition, goalPosition)) {
+            return takePieces;
+        }
+        boolean expectPiece = true;
+        while (newPosition != goalPosition) {
+            if (newPosition.getRow() < goalPosition.getRow()) {
+                newRow = newPosition.getRow() + 1;
             } else {
-                newCol = nextPosition.getCol() + 1;
+                newRow = newPosition.getRow() - 1;
             }
-
-            // Determine Row after Taken Piece
-            if (newPosition.getRow() < nextPosition.getRow()) {
-                newRow = nextPosition.getRow() - 1;
+            if (newPosition.getCol() < goalPosition.getCol()) {
+                newCol = newPosition.getCol() + 1;
             } else {
-                newRow = nextPosition.getRow() + 1;
+                newCol = newPosition.getCol() - 1;
             }
 
-            if (newRow >= size - 1 || newCol >= size) {
-                break;
-            }
-            if (newRow < 0 || newCol < 0) {
+            if (!checkBounds(newRow, newCol)) {
                 break;
             }
 
-            // Return if valid position
-            if (pieces.get(positions[newRow][newCol]) != null && pieces.get(positions[newRow][newCol]) != current) {
-                takePieces.add(pieces.get(positions[newRow][newCol]));
+            newPosition = positions[newRow][newCol];
+            if (expectPiece) {
+                if (pieceAt(newPosition)) {
+                    if (getPieceAt(newPosition).matchingPlayer(current.getPlayer())) {
+                        break;
+                    } else {
+                        takePieces.add(getPieceAt(newPosition));
+                    }
+                }
+                expectPiece = false;
+            } else {
+                if (pieceAt(newPosition)) {
+                    break;
+                }
+                expectPiece = true;
             }
         }
         return takePieces;
     }
 
-    public Position findJumpPosition(Piece current, Piece take) {
-        Position currentPosition = current.getPosition();
-        Position takePosition = take.getPosition();
-        int newRow;
-        int newCol;
-
-        // Determine Column after Taken Piece
-        if (currentPosition.getCol() < takePosition.getCol()) {
-            newCol = takePosition.getCol() + 1;
-        } else {
-            newCol = takePosition.getCol() - 1;
-        }
-        // Determine Row after Taken Piece
-        if (currentPosition.getRow() < takePosition.getRow()) {
-            newRow = takePosition.getRow() + 1;
-        } else {
-            newRow = takePosition.getRow() - 1;
+    public boolean properMovement(Position startPosition, Position goalPosition) {
+        if (startPosition.getCol() == goalPosition.getCol()) {
+            return false;
         }
 
-        if (newRow >= size || newCol >= size) {
-            return null;
-        }
-        if (newRow < 0 || newCol < 0) {
-            return null;
+        if (startPosition.getRow() == goalPosition.getRow()) {
+            return false;
         }
 
-        // Return if valid position
-        if (positions[newRow][newCol] != null) {
-            return positions[newRow][newCol];
+        if (Math.abs(startPosition.getRow() - goalPosition.getRow()) != Math.abs(startPosition.getCol() - goalPosition.getCol())) {
+            return false;
         }
-        return null;
+
+        if (pieceAt(goalPosition)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean checkBounds(int row, int col) {
+        if (row < 0 || col < 0) {
+            return false;
+        }
+
+        if (row >= size - 1 || col >= size - 1) {
+            return false;
+        }
+
+        return true;
     }
 
     // Getters

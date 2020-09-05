@@ -71,10 +71,10 @@ public class Jump implements Move {
         }
 
         // Can only move forward two position
-        if (Math.abs(nextCol - currentCol) != 2) {
+        if (Math.abs(nextCol - currentCol) != 2*takePieces.size()) {
             return false;
         }
-        if (Math.abs(nextRow - currentRow) != 2) {
+        if (Math.abs(nextRow - currentRow) != 2*takePieces.size()) {
             return false;
         }
 

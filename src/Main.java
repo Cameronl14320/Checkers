@@ -1,5 +1,4 @@
 import Display.GUI;
-import Game.Game;
 
 public class Main {
 

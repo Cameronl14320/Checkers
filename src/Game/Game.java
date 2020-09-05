@@ -20,7 +20,7 @@ public class Game extends JPanel {
     // Gameplay
     private int currentPlayer;
     private Stack<Move> previousMoves;
-    private boolean forceJump = false;
+    private boolean forceJump = true;
 
     // Display
     private Piece selectedPiece;
@@ -34,7 +34,6 @@ public class Game extends JPanel {
         previousMoves = new Stack<>();
         initBoard(size, rowsOfPieces);
         new Timer(delay, e->repaint()).start();
-
         currentBoard.highlightMovable(currentPlayer);
     }
 
@@ -103,6 +102,8 @@ public class Game extends JPanel {
         } else {
             currentPlayer = 1;
         }
+        currentBoard.removePieceHighlights();
+        currentBoard.removePositionHighlights();
         currentBoard.highlightMovable(currentPlayer);
     }
 
