@@ -17,7 +17,7 @@
  - Forwards Movement (*done*) - if not promoted, only allowed to move towards other side
  - Basic Jump/Attack (*done*)
  - Multijump on same direction (*done*)
- - Multijump on different direction (*not done*) - will require to revamp multijump system*
+ - Multijump on different direction (*not done*) - will require a revamp for the multijump system
   
 ## Monte Carlo (35% weighted)
  - Get all valid moves (*done*) - may require some changes depending on Multijump revamp
