@@ -14,14 +14,16 @@ public class Jump implements Action {
     private final Position currentPosition;
     private final Position takePosition;
     private final Position nextPosition;
+    private final boolean pieceAt;
 
 
-    public Jump(Piece piece, Piece take, Position currentPosition, Position takePosition, Position nextPosition) {
+    public Jump(Piece piece, Piece take, Position currentPosition, Position takePosition, Position nextPosition, boolean pieceAt) {
         this.piece = piece;
         this.take = take;
         this.currentPosition = currentPosition;
         this.takePosition = takePosition;
         this.nextPosition = nextPosition;
+        this.pieceAt = pieceAt;
     }
 
     @Override
@@ -36,6 +38,10 @@ public class Jump implements Action {
         }
 
         if (piece.equals(take)) {
+            return false;
+        }
+
+        if (pieceAt) {
             return false;
         }
 
@@ -73,6 +79,11 @@ public class Jump implements Action {
     }
 
     @Override
+    public Position nextPosition() {
+        return this.nextPosition;
+    }
+
+    @Override
     public boolean equals(Action a) {
         if (!a.getClass().equals(Jump.class)) {
             return false;
@@ -82,10 +93,7 @@ public class Jump implements Action {
                 this.piece == compare.piece && this.take == compare.take);
     }
 
-    @Override
-    public Position nextPosition() {
-        return this.nextPosition;
-    }
+
 
 
 }

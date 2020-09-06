@@ -18,6 +18,10 @@ public class Move {
         }
     }
 
+    public void addAction(Action a) {
+        this.actions.add(a);
+    }
+
     public boolean apply(Board board) {
         for (Action a : actions) {
             a.apply(board);

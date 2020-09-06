@@ -26,21 +26,15 @@ public class Board {
     private Map<Position, Piece> pieces;
     private Map<Piece, Position> positionsMap;
     private final int size;
-    private final int rowsOfPieces;
-
-    private Set<Piece> capturedBlack;
-    private Set<Piece> capturedWhite;
 
     private ArrayList<Position> validPositions;
 
     public Board(int size, int rowsOfPieces) {
         this.size = size;
-        this.rowsOfPieces = rowsOfPieces;
-        this.capturedBlack = new HashSet<>();
-        this.capturedWhite = new HashSet<>();
 
         validPositions = new ArrayList<>();
         pieces = new HashMap<>();
+        positionsMap = new HashMap<>();
         positions = makePositions(size, rowsOfPieces);
 
         for (int row = 0; row < size; row++) {
@@ -77,8 +71,37 @@ public class Board {
         }
     }
 
-    public void highlightMovable(int player) {
-
+    public void highlightMovable(int player, boolean mustJump) {
+        boolean canJump = false;
+        if (mustJump) {
+            for (Piece p : positionsMap.keySet()) {
+                if (p.matchingPlayer(player)) {
+                    Set<Move> validMoves = getAllJumps(p);
+                    if (!validMoves.isEmpty()) {
+                        p.setMovable(true);
+                        canJump = true;
+                    } else {
+                        p.setMovable(false);
+                    }
+                } else {
+                    p.setMovable(false);
+                }
+            }
+        }
+        if (!mustJump || canJump == false) {
+            for (Piece p : positionsMap.keySet()) {
+                if (p.matchingPlayer(player)) {
+                    Set<Move> validMoves = getValidMoves(p);
+                    if (!validMoves.isEmpty()) {
+                        p.setMovable(true);
+                    } else {
+                        p.setMovable(false);
+                    }
+                } else {
+                    p.setMovable(false);
+                }
+            }
+        }
     }
 
     public void removePieceHighlights() {
@@ -125,10 +148,30 @@ public class Board {
         }
     }
 
+    public Set<Move> getAllValidMoves(int player, boolean mustJump) {
+        Set<Move> allValidMoves = new HashSet<>();
+        for (Piece p : positionsMap.keySet()) {
+            Set<Move> tempMoves = new HashSet<>();
+            if (p.matchingPlayer(player)) {
+                if (mustJump) {
+                    tempMoves = getAllJumps(p);
+                } else {
+                    tempMoves = getValidMoves(p);
+                }
+            }
+
+            for (Move m : tempMoves) {
+                allValidMoves.add(m);
+            }
+        }
+        return allValidMoves;
+    }
+
     public Set<Move> getValidMoves(Piece piece) {
         Set<Move> validMoves = new HashSet<>();
         Set<Move> validForwards = getAllForwards(piece);
         Set<Move> validJumps = getAllJumps(piece);
+
         for (Move m : validForwards) {
             validMoves.add(m);
         }
@@ -168,7 +211,7 @@ public class Board {
                 if (properMovement(positionsMap.get(piece), positions[row][col], 2)) {
                     Piece takePiece = findTakePiece(positionsMap.get(piece), positions[row][col]);
                     if (takePiece != null) {
-                        Jump newJump = new Jump(piece, takePiece, positionsMap.get(piece), positionsMap.get(takePiece), positions[row][col]);
+                        Jump newJump = new Jump(piece, takePiece, positionsMap.get(piece), positionsMap.get(takePiece), positions[row][col], pieceAt(row, col));
                         if (newJump.isValid()) {
                             ArrayList<Action> newAction = new ArrayList<>();
                             newAction.add(newJump);
@@ -182,6 +225,10 @@ public class Board {
             }
         }
         return validJumps;
+    }
+
+    public boolean canJump(Piece piece) {
+        return !getAllJumps(piece).isEmpty();
     }
 
     public Piece findTakePiece(Position startPosition, Position goalPosition) {
@@ -251,7 +298,7 @@ public class Board {
             return false;
         }
 
-        if (row >= size - 1 || col >= size - 1) {
+        if (row >= size || col >= size) {
             return false;
         }
 
@@ -301,6 +348,13 @@ public class Board {
         }
     }
 
+    public Position getPiecePosition(Piece piece) {
+        if (positionsMap.containsKey(piece)) {
+            return positionsMap.get(piece);
+        }
+        return null;
+    }
+
     /**
      * Intialise the Checkers Board through a Positions 2d Array
      * Remains constant throughout every Board object
@@ -327,7 +381,7 @@ public class Board {
                         color = 1;
                     }
                 }
-                positions[row][col] = new Position(row, col, color, null);
+                positions[row][col] = new Position(row, col, color);
             }
             if (stagger) {
                 stagger = false;
