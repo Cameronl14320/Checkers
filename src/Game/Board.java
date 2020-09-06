@@ -10,8 +10,21 @@ import java.util.*;
 
 public class Board {
 
+    public static Color BLACK_TILE = new Color(0, 0, 0);
+    public static Color WHITE_TILE = new Color(255, 255, 255);
+    public static Color HIGHLIGHT_TILE = new Color(39, 142, 187);
+
+    public static Color PLAYER_ONE_INNER = new Color(116, 38, 38);
+    public static Color PLAYER_ONE_OUTER = new Color(165, 39, 39);
+    public static Color PLAYER_TWO_INNER = new Color(172, 166, 139);
+    public static Color PLAYER_TWO_OUTER = new Color(210, 202, 178);
+    public static Color SELECT_HIGHLIGHT = new Color(206, 187, 45);
+    public static Color MOVABLE_HIGHLIGHT = new Color(0x43B443);
+    public static Color PROMOTED_CROWN = new Color(132, 17, 196);
+
     private static Position[][] positions;
     private Map<Position, Piece> pieces;
+    private Map<Piece, Position> positionsMap;
     private final int size;
     private final int rowsOfPieces;
 
@@ -33,12 +46,13 @@ public class Board {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 if (positions[row][col].isBlack()) {
+                    Position currentPosition = positions[row][col];
                     if (row < rowsOfPieces) {
-                        pieces.put(positions[row][col], new Piece(0, positions[row][col]));
+                        addPiece(new Piece(0), currentPosition);
                     }
 
                     if (row >= (size - rowsOfPieces)) {
-                        pieces.put(positions[row][col], new Piece(1, positions[row][col]));
+                        addPiece(new Piece(1), currentPosition);
                     }
                 }
             }
@@ -47,26 +61,12 @@ public class Board {
 
     public void addPiece(Piece piece, Position position) {
         pieces.put(position, piece);
+        positionsMap.put(piece, position);
     }
 
-    public void removePiece(Position position) {
+    public void removePiece(Piece piece, Position position) {
         pieces.remove(position);
-    }
-
-    public void addCaptured(int player, Piece piece) {
-        if (player == 1) {
-            capturedBlack.add(piece);
-        } else {
-            capturedWhite.add(piece);
-        }
-    }
-
-    public void removeCaptured(int player, Piece piece) {
-        if (player == 1) {
-            capturedBlack.remove(piece);
-        } else {
-            capturedWhite.remove(piece);
-        }
+        positionsMap.remove(piece);
     }
 
     public void removePositionHighlights() {
@@ -78,15 +78,7 @@ public class Board {
     }
 
     public void highlightMovable(int player) {
-        for (Position pos : pieces.keySet()) {
-            Piece p = pieces.get(pos);
-            if (p.matchingPlayer(player)) {
-                ArrayList<Action> validActions = getValidMoves(p, false, false);
-                if (!validActions.isEmpty()) {
-                    p.setMovable(true);
-                }
-            }
-        }
+
     }
 
     public void removePieceHighlights() {
@@ -97,163 +89,35 @@ public class Board {
         }
     }
 
-    public boolean canAnyJump(int player) {
-        for (Position pos : pieces.keySet()) {
-            Piece p = pieces.get(pos);
-            if (p.matchingPlayer(player)) {
-                if (canJump(p)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean canJump(Piece piece) {
-        ArrayList<Action> validActions = getValidMoves(piece, true, false);
-        for (Action m : validActions) {
-            if (m.getClass().equals(Jump.class)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void checkPromoted(Piece piece) {
         if (piece.getPlayer() == 1) {
-            if (piece.getPosition().getRow() == 0) {
+            if (positionsMap.get(piece).getRow() == 0) {
                 piece.setPromoted(true);
             }
         } else {
-            if (piece.getPosition().getRow() == size - 1) {
+            if (positionsMap.get(piece).getRow() == size - 1) {
                 piece.setPromoted(true);
             }
         }
     }
 
     public void getValidPositions(Piece piece, boolean mustJump) {
-        for (Position p : validPositions) {
-            p.setHighlightTile(false);
-        }
-        validPositions = new ArrayList<>();
 
-        ArrayList<Action> validActions = getValidMoves(piece, mustJump, true);
-
-        for (Action m : validActions) {
-            Position p = m.getNextPosition();
-            p.setHighlightTile(true);
-        }
     }
 
     public ArrayList<Move> getValidMoves(Piece piece) {
 
+        return null;
     }
 
     public ArrayList<Forward> getAllForwards(Piece piece) {
-
+        return null;
     }
 
     public ArrayList<Jump> getAllJumps(Piece piece) {
-
+        return null;
     }
 
-    public ArrayList<Action> getValidMoves(Piece piece, boolean mustJump, boolean extraJump) {
-        ArrayList<Action> validActions = new ArrayList<>();
-        Action nextAction = null;
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++) {
-                Position nextPosition = positions[row][col];
-                ArrayList<Piece> takePieces = findTakePiece(piece, nextPosition);
-                // Determine if able to take a piece
-                if (!takePieces.isEmpty()) {
-                    if (nextPosition != null) {
-                        nextAction = new Jump(piece, takePieces, nextPosition, pieceAt(nextPosition));
-                    }
-                    // Determine if standard movement available
-                } else {
-                    nextAction = new Forward(piece, nextPosition, pieceAt(nextPosition));
-                }
-                // Add it to available moves
-                if (nextAction != null && nextAction.isValid()) {
-                    if (mustJump) {
-                        if (nextAction.getClass().equals(Jump.class)) {
-                            validActions.add(nextAction);
-                        }
-                    } else {
-                        validActions.add(nextAction);
-                    }
-                    nextAction = null;
-                }
-            }
-        }
-
-        if (piece.getIsPromoted()) {
-            boolean canJump = false;
-            ArrayList<Action> removeActions = new ArrayList<>();
-            for (Action m : validActions) {
-                if (m.getClass().equals(Jump.class)) {
-                    canJump = true;
-                } else {
-                    removeActions.add(m);
-                }
-            }
-            if (canJump) {
-                for (Action m : removeActions) {
-                    validActions.remove(m);
-                }
-            }
-        }
-        return validActions;
-    }
-
-
-    // Jump Move
-    public ArrayList<Piece> findTakePiece(Piece current, Position goalPosition) {
-        ArrayList<Piece> takePieces = new ArrayList<>();
-        Position currentPosition = current.getPosition();
-        Position newPosition = currentPosition;
-        int newRow;
-        int newCol;
-
-        if (!properMovement(currentPosition, goalPosition)) {
-            return takePieces;
-        }
-        boolean expectPiece = true;
-        while (newPosition != goalPosition) {
-            if (newPosition.getRow() < goalPosition.getRow()) {
-                newRow = newPosition.getRow() + 1;
-            } else {
-                newRow = newPosition.getRow() - 1;
-            }
-            if (newPosition.getCol() < goalPosition.getCol()) {
-                newCol = newPosition.getCol() + 1;
-            } else {
-                newCol = newPosition.getCol() - 1;
-            }
-
-            if (!checkBounds(newRow, newCol)) {
-                break;
-            }
-
-            newPosition = positions[newRow][newCol];
-            if (expectPiece) {
-                if (pieceAt(newPosition)) {
-                    if (getPieceAt(newPosition).matchingPlayer(current.getPlayer())) {
-                        break;
-                    } else {
-                        takePieces.add(getPieceAt(newPosition));
-                    }
-                }
-                expectPiece = false;
-            } else {
-                if (pieceAt(newPosition)) {
-                    break;
-                }
-                expectPiece = true;
-            }
-        }
-        return takePieces;
-    }
 
     public boolean properMovement(Position startPosition, Position goalPosition) {
 
@@ -367,14 +231,64 @@ public class Board {
     public void paint(Graphics g, int rectSize) {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
-                positions[row][col].paint(g, rectSize);
+                paintPosition(positions[row][col], g, rectSize);
             }
         }
 
         // Draw Board Pieces
         for (Position pos : pieces.keySet()) {
-            pieces.get(pos).paint(g, rectSize);
+            paintPiece(pos, pieces.get(pos), g, rectSize);
         }
+    }
+
+    public void paintPosition(Position position, Graphics g, int rectSize) {
+        if (position.isBlack()) {
+            g.setColor(BLACK_TILE);
+        } else {
+            g.setColor(WHITE_TILE);
+        }
+        if (position.isHighlighted()) {
+            g.setColor(HIGHLIGHT_TILE);
+        }
+        g.fillRect(position.getCol() * rectSize, position.getRow() * rectSize, rectSize, rectSize);
+    }
+
+    public void paintPiece(Position position, Piece piece, Graphics g, int rectSize) {
+        // Highlight
+        int border = rectSize/16;
+        if (piece.isSelected()) {
+            g.setColor(SELECT_HIGHLIGHT);
+            g.fillOval(border/2 + (position.getCol() * rectSize), border/2 + (position.getRow() * rectSize),
+                    rectSize - border, rectSize - border);
+        } else if (piece.isMovable()) {
+            g.setColor(MOVABLE_HIGHLIGHT);
+            g.fillOval(border/2 + (position.getCol() * rectSize), border/2 + (position.getRow() * rectSize),
+                    rectSize - border, rectSize - border);
+        }
+
+        // Outer Circle
+        border = rectSize/8;
+        if (piece.isPromoted()) {
+            g.setColor(PROMOTED_CROWN);
+        } else {
+            if (piece.isBlack()) {
+                g.setColor(PLAYER_ONE_OUTER);
+            } else {
+                g.setColor(PLAYER_TWO_OUTER);
+            }
+        }
+        g.fillOval(border/2 + (position.getCol() * rectSize), border/2 + (position.getRow() * rectSize),
+                rectSize - border, rectSize - border);
+
+        // Inner Circle
+        border = rectSize/4;
+        if (piece.isBlack()) {
+            g.setColor(PLAYER_ONE_INNER);
+        } else {
+            g.setColor(PLAYER_TWO_INNER);
+        }
+        g.fillOval(border/2 + (position.getCol() * rectSize), border/2 + (position.getRow() * rectSize),
+                rectSize - border, rectSize - border);
     }
 
     @Override

@@ -8,78 +8,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Jump implements Action {
-    private final Piece movingPiece;
-    private final ArrayList<Piece> takePieces;
+
+    private final Piece piece;
+    private final Piece take;
     private final Position currentPosition;
     private final Position nextPosition;
+    private final Direction direction;
 
-    private final boolean pieceAtNext;
 
-
-    public Jump(Piece piece, List<Piece> takePieces, Position nextPosition, boolean pieceAtNext) {
-        this.movingPiece = piece;
-        this.takePieces = new ArrayList<>();
-        this.currentPosition = piece.getPosition();
+    public Jump(Piece piece, Piece take, Position currentPosition, Position nextPosition, Direction direction) {
+        this.piece = piece;
+        this.take = take;
+        this.currentPosition = currentPosition;
         this.nextPosition = nextPosition;
-        this.pieceAtNext = pieceAtNext;
-
-        for (Piece p : takePieces) {
-            this.takePieces.add(p);
-        }
+        this.direction = direction;
     }
 
     @Override
     public boolean isValid() {
-        int currentRow = currentPosition.getRow();
-        int currentCol = currentPosition.getCol();
-        int nextRow = nextPosition.getRow();
-        int nextCol = nextPosition.getCol();
-
-        // Can't move on to same position
-        if (currentPosition.equals(nextPosition)) {
-            return false;
-        }
-        // Only allow forward movement unless promoted
-        if (!movingPiece.getIsPromoted()) {
-            if (movingPiece.isBlack()) {
-                if (nextRow > currentPosition.getRow()) {
-                    return false;
-                }
-            } else {
-                if (nextRow < currentPosition.getRow()) {
-                    return false;
-                }
-            }
-        }
-        // Can only move onto Dark tiles
-        if (!nextPosition.isBlack()) {
+        if (piece.matchingPlayer(take.getPlayer())) {
             return false;
         }
 
-        // As diagonal Movement, dy/dy = 1
-        if (Math.abs(nextRow - currentRow) != Math.abs(nextCol - currentCol)) {
-            return false;
-        }
-
-
-        // Can only move forward two position
-        if (Math.abs(nextCol - currentCol) != 2*takePieces.size()) {
-            return false;
-        }
-        if (Math.abs(nextRow - currentRow) != 2*takePieces.size()) {
-            return false;
-        }
-
-        for (Piece p : takePieces) {
-            if (movingPiece.getPlayer() == p.getPlayer()) {
-                return false;
-            }
-        }
-
-
-        if (pieceAtNext) {
-            return false;
-        }
 
         return true;
     }
@@ -89,37 +39,26 @@ public class Jump implements Action {
         if (!isValid()) {
             return false;
         }
-        movingPiece.setPosition(nextPosition);
-        board.removePiece(currentPosition);
-        for (Piece p : takePieces) {
-            board.removePiece(p.getPosition());
-            board.addCaptured(p.getPlayer(), p);
-        }
-        board.addPiece(movingPiece, nextPosition);
+
         return true;
     }
 
     @Override
     public void undo(Board board) {
-        movingPiece.setPosition(currentPosition);
-        board.removePiece(nextPosition);
-        for (Piece p : takePieces) {
-            board.addPiece(p, p.getPosition());
-            board.removeCaptured(p.getPlayer(), p);
-        }
-        board.addPiece(movingPiece, currentPosition);
-    }
 
-    public Position getNextPosition() {
-        return this.nextPosition;
     }
 
     @Override
-    public Piece getCurrentPiece() {
-        return movingPiece;
+    public boolean equals(Action a) {
+        if (!a.getClass().equals(Jump.class)) {
+            return false;
+        }
+
+        Jump compare = (Jump) a;
+
+        return (this.currentPosition == compare.currentPosition && this.nextPosition == compare.nextPosition &&
+                this.piece == compare.piece && this.take == compare.take && this.direction == compare.direction);
     }
 
-    public ArrayList<Piece> getTakePieces() {
-        return takePieces;
-    }
+
 }

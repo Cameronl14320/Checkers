@@ -6,10 +6,6 @@ import java.awt.*;
 
 public class Position {
 
-    public static Color BLACK_TILE = new Color(0, 0, 0);
-    public static Color WHITE_TILE = new Color(255, 255, 255);
-    public static Color HIGHLIGHT_TILE = new Color(39, 142, 187);
-
     private final int color; // 1 for BLACK, 0 for WHITE
     private boolean isHighlighted = false;
     private final Piece piece;
@@ -36,16 +32,8 @@ public class Position {
         return (color == 1);
     }
 
-    public void paint(Graphics g, int rectSize) {
-        if (isBlack()) {
-            g.setColor(BLACK_TILE);
-        } else {
-            g.setColor(WHITE_TILE);
-        }
-        if (isHighlighted) {
-            g.setColor(HIGHLIGHT_TILE);
-        }
-        g.fillRect(col * rectSize, row * rectSize, rectSize, rectSize);
+    public boolean isHighlighted() {
+        return this.isHighlighted;
     }
 
     public void setHighlightTile(boolean isHighlight) {

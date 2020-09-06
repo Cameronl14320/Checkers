@@ -35,4 +35,16 @@ public class Move {
         }
         return true;
     }
+
+    public boolean equals(Move m) {
+        if (m.actions.size() != this.actions.size()) {
+            return false;
+        }
+        for (int n = 0; n < this.actions.size(); n++) {
+            if (!this.actions.get(n).equals(m.actions.get(n))) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

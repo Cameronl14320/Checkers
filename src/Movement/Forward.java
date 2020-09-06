@@ -5,76 +5,22 @@ import Game.Piece;
 import Game.Position;
 
 public class Forward implements Action {
-    private final Piece movingPiece;
+
+    private final Piece piece;
     private final Position currentPosition;
     private final Position nextPosition;
+    private final Direction direction;
 
-    private final boolean pieceAtNext;
 
-
-    public Forward(Piece piece, Position nextPosition, boolean pieceAtNext) {
-        this.movingPiece = piece;
-        this.currentPosition = piece.getPosition();
+    public Forward(Piece piece, Position currentPosition, Position nextPosition, Direction direction) {
+        this.piece = piece;
+        this.currentPosition = currentPosition;
         this.nextPosition = nextPosition;
-        this.pieceAtNext = pieceAtNext;
+        this.direction = direction;
     }
 
     @Override
     public boolean isValid() {
-        int currentRow = currentPosition.getRow();
-        int currentCol = currentPosition.getCol();
-        int nextRow = nextPosition.getRow();
-        int nextCol = nextPosition.getCol();
-
-        // Can't move on to same position
-        if (currentPosition.equals(nextPosition)) {
-            return false;
-        }
-        // Only allow forward movement and one place movement unless promoted
-        if (!movingPiece.getIsPromoted()) {
-            if (movingPiece.isBlack()) {
-                if (nextRow > currentPosition.getRow()) {
-                    return false;
-                }
-            } else {
-                if (nextRow < currentPosition.getRow()) {
-                    return false;
-                }
-            }
-        }
-
-        // Can only move forward one position
-        if (Math.abs(nextCol - currentCol) != 1) {
-            return false;
-        }
-        // Can only move forward
-        if (Math.abs(nextRow - currentRow) != 1) {
-            return false;
-        }
-
-        // As diagonal Movement, dy/dy = 1
-        if (Math.abs(nextRow - currentRow) != Math.abs(nextCol - currentCol)) {
-            return false;
-        }
-
-        // Cannot move directly forward
-        if (nextCol - currentPosition.getCol() == 0) {
-            return false;
-        }
-        // Cannot move directly to the side
-        if (nextRow - currentPosition.getRow() == 0) {
-            return false;
-        }
-
-        // Can only move onto Dark tiles
-        if (!nextPosition.isBlack()) {
-            return false;
-        }
-        // There is currently a piece at the given location
-        if (pieceAtNext) {
-            return false;
-        }
-
         return true;
     }
 
@@ -83,25 +29,24 @@ public class Forward implements Action {
         if (!isValid()) {
             return false;
         }
-        movingPiece.setPosition(nextPosition);
-        board.removePiece(currentPosition);
-        board.addPiece(movingPiece, nextPosition);
+
         return true;
     }
 
     @Override
     public void undo(Board board) {
-        movingPiece.setPosition(currentPosition);
-        board.removePiece(nextPosition);
-        board.addPiece(movingPiece, currentPosition);
-    }
 
-    public Position getNextPosition() {
-        return this.nextPosition;
     }
 
     @Override
-    public Piece getCurrentPiece() {
-        return movingPiece;
+    public boolean equals(Action a) {
+        if (!a.getClass().equals(Forward.class)) {
+            return false;
+        }
+        Forward compare = (Forward) a;
+
+        return (this.currentPosition == compare.currentPosition && this.nextPosition == compare.nextPosition &&
+                this.piece == compare.piece && this.direction == compare.direction);
     }
+
 }

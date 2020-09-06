@@ -44,56 +44,15 @@ public class Game extends JPanel {
     }
 
     public void handleActions(int row, int col) {
-        Piece newSelect = currentBoard.getPieceAt(row, col);
-        if (newSelect != null) {
-            handleSelection(newSelect);
-        } else if (selectedPiece != null) {
-            selectedPosition = currentBoard.getPositionAt(row, col);
-            if (selectedPosition != null) {
-                ArrayList<Piece> takePiece = currentBoard.findTakePiece(selectedPiece, selectedPosition);
-                Action newAction = forwardOrJump(takePiece);
-                if (forceJump) {
-                    if (currentBoard.canAnyJump(currentPlayer) && newAction.getClass().equals(Forward.class)) {
-                        return;
-                    }
-                }
-                if (newAction.apply(currentBoard)) {
-                    currentBoard.checkPromoted(selectedPiece);
-                    previousActions.add(newAction);
-                    currentBoard.removePositionHighlights();
-                    selectedPiece.setSelected(false);
-                    selectedPiece = null;
-                    selectedPosition = null;
-                    changeTurn();
-                }
-            }
-        }
+
     }
 
     public void handleSelection(Piece newSelect) {
-        if (newSelect.matchingPlayer(currentPlayer)) {
-            if (selectedPiece != null && newSelect != selectedPiece) {
-                newSelect.setSelected(true);
-                selectedPiece.setSelected(false);
-            }
-            selectedPiece = newSelect;
-            currentBoard.removePositionHighlights();
 
-            if (forceJump && currentBoard.canAnyJump(currentPlayer)) {
-                currentBoard.getValidPositions(selectedPiece, true);
-            } else {
-                currentBoard.getValidPositions(selectedPiece, false);
-            }
-        }
-        repaint();
     }
 
     public Action forwardOrJump(ArrayList<Piece> takePiece) {
-        if (!takePiece.isEmpty()) {
-            return new Jump(selectedPiece, takePiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
-        } else {
-            return new Forward(selectedPiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
-        }
+        return null;
     }
 
     private void changeTurn() {
