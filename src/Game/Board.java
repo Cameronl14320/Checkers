@@ -102,38 +102,140 @@ public class Board {
     }
 
     public void getValidPositions(Piece piece, boolean mustJump) {
+        for (Position p : validPositions) {
+            p.setHighlightTile(false);
+        }
+        validPositions = new ArrayList<>();
 
+        Set<Move> validMoves;
+        if (mustJump) {
+            validMoves = getAllJumps(piece);
+        } else {
+            validMoves = getValidMoves(piece);
+        }
+
+        for (Move m : validMoves) {
+            for (Position p : m.getNextPositions()) {
+                validPositions.add(p);
+            }
+        }
+
+        for (Position p : validPositions) {
+            p.setHighlightTile(true);
+        }
     }
 
-    public ArrayList<Move> getValidMoves(Piece piece) {
-        ArrayList<Move> validMoves = new ArrayList<>();
+    public Set<Move> getValidMoves(Piece piece) {
+        Set<Move> validMoves = new HashSet<>();
+        Set<Move> validForwards = getAllForwards(piece);
+        Set<Move> validJumps = getAllJumps(piece);
+        for (Move m : validForwards) {
+            validMoves.add(m);
+        }
+        for (Move m : validJumps) {
+            validMoves.add(m);
+        }
+
+        return validMoves;
+    }
+
+    public Set<Move> getAllForwards(Piece piece) {
+        Set<Move> validForwards = new HashSet<>();
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Move newMove = null;
-                if (properMovement(positionsMap.get(piece), positions[row][col])) {
-
+                if (properMovement(positionsMap.get(piece), positions[row][col], 1)) {
+                    Forward newForward = new Forward(piece, positionsMap.get(piece), positions[row][col], pieceAt(row, col));
+                    if (newForward.isValid()) {
+                        ArrayList<Action> newAction = new ArrayList<>();
+                        newAction.add(newForward);
+                        newMove = new Move(newAction);
+                    }
                 }
+                if (newMove != null) {
+                    validForwards.add(newMove);
+                }
+            }
+        }
+        return validForwards;
+    }
+
+    public Set<Move> getAllJumps(Piece piece) {
+        Set<Move> validJumps = new HashSet<>();
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Move newMove = null;
+                if (properMovement(positionsMap.get(piece), positions[row][col], 2)) {
+                    Piece takePiece = findTakePiece(positionsMap.get(piece), positions[row][col]);
+                    if (takePiece != null) {
+                        Jump newJump = new Jump(piece, takePiece, positionsMap.get(piece), positionsMap.get(takePiece), positions[row][col]);
+                        if (newJump.isValid()) {
+                            ArrayList<Action> newAction = new ArrayList<>();
+                            newAction.add(newJump);
+                            newMove = new Move(newAction);
+                        }
+                    }
+                }
+                if (newMove != null) {
+                    validJumps.add(newMove);
+                }
+            }
+        }
+        return validJumps;
+    }
+
+    public Piece findTakePiece(Position startPosition, Position goalPosition) {
+        if (!properMovement(startPosition, goalPosition, 2)) {
+            return null;
+        }
+
+        int newCol;
+        int newRow;
+
+        if (startPosition.getCol() < goalPosition.getCol()) {
+            newCol = startPosition.getCol() + 1;
+        } else {
+            newCol = goalPosition.getCol() + 1;
+        }
+
+        if (startPosition.getRow() < goalPosition.getRow()) {
+            newRow = startPosition.getRow() + 1;
+        } else {
+            newRow = goalPosition.getRow() + 1;
+        }
+
+        if (newCol != -1 && newRow != -1) {
+            if (pieceAt(newRow, newCol)) {
+                return getPieceAt(newRow, newCol);
             }
         }
         return null;
     }
 
-    public ArrayList<Forward> getAllForwards(Piece piece) {
-        return null;
-    }
 
-    public ArrayList<Jump> getAllJumps(Piece piece) {
-        return null;
-    }
+    public boolean properMovement(Position startPosition, Position goalPosition, int expectedDistance) {
 
+        if (!checkBounds(startPosition.getRow(), startPosition.getCol())) {
+            return false;
+        }
 
-    public boolean properMovement(Position startPosition, Position goalPosition) {
+        if (!checkBounds(goalPosition.getRow(), goalPosition.getCol())) {
+            return false;
+        }
 
         if (startPosition.equals(goalPosition)) {
             return false;
         }
 
         if (Math.abs(startPosition.getRow() - goalPosition.getRow()) != Math.abs(startPosition.getCol() - goalPosition.getCol())) {
+            return false;
+        }
+
+        if (Math.abs(startPosition.getRow() - goalPosition.getRow()) != expectedDistance) {
+            return false;
+        }
+
+        if (Math.abs(startPosition.getCol() - goalPosition.getCol()) != expectedDistance) {
             return false;
         }
 

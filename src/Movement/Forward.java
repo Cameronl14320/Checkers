@@ -9,16 +9,35 @@ public class Forward implements Action {
     private final Piece piece;
     private final Position currentPosition;
     private final Position nextPosition;
+    private final boolean pieceAt;
 
 
-    public Forward(Piece piece, Position currentPosition, Position nextPosition) {
+    public Forward(Piece piece, Position currentPosition, Position nextPosition, boolean pieceAt) {
         this.piece = piece;
         this.currentPosition = currentPosition;
         this.nextPosition = nextPosition;
+        this.pieceAt = pieceAt;
     }
 
     @Override
     public boolean isValid() {
+
+        if (piece == null) {
+            return false;
+        }
+
+        if (nextPosition.equals(currentPosition)) {
+            return false;
+        }
+
+        if (Math.abs(currentPosition.getRow() - nextPosition.getRow()) > 1) {
+            return false;
+        }
+
+        if (Math.abs(currentPosition.getCol() - nextPosition.getCol()) > 1) {
+            return false;
+        }
+
         return true;
     }
 
@@ -27,13 +46,15 @@ public class Forward implements Action {
         if (!isValid()) {
             return false;
         }
-
+        board.removePiece(piece, currentPosition);
+        board.addPiece(piece, nextPosition);
         return true;
     }
 
     @Override
     public void undo(Board board) {
-
+        board.removePiece(piece, nextPosition);
+        board.addPiece(piece, currentPosition);
     }
 
     @Override
@@ -42,9 +63,13 @@ public class Forward implements Action {
             return false;
         }
         Forward compare = (Forward) a;
-
         return (this.currentPosition == compare.currentPosition && this.nextPosition == compare.nextPosition &&
                 this.piece == compare.piece);
+    }
+
+    @Override
+    public Position nextPosition() {
+        return this.nextPosition;
     }
 
 }

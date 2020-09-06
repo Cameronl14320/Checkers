@@ -1,6 +1,7 @@
 package Movement;
 
 import Game.Board;
+import Game.Position;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,5 +47,13 @@ public class Move {
             }
         }
         return true;
+    }
+
+    public List<Position> getNextPositions() {
+        ArrayList<Position> positions = new ArrayList<>();
+        for (Action a : actions) {
+            positions.add(a.nextPosition());
+        }
+        return positions;
     }
 }

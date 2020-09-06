@@ -17,4 +17,6 @@ public interface Action {
     void undo(Board board);
 
     boolean equals(Action a);
+
+    Position nextPosition();
 }
