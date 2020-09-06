@@ -13,15 +13,13 @@ public class Jump implements Action {
     private final Piece take;
     private final Position currentPosition;
     private final Position nextPosition;
-    private final Direction direction;
 
 
-    public Jump(Piece piece, Piece take, Position currentPosition, Position nextPosition, Direction direction) {
+    public Jump(Piece piece, Piece take, Position currentPosition, Position nextPosition) {
         this.piece = piece;
         this.take = take;
         this.currentPosition = currentPosition;
         this.nextPosition = nextPosition;
-        this.direction = direction;
     }
 
     @Override
@@ -57,7 +55,7 @@ public class Jump implements Action {
         Jump compare = (Jump) a;
 
         return (this.currentPosition == compare.currentPosition && this.nextPosition == compare.nextPosition &&
-                this.piece == compare.piece && this.take == compare.take && this.direction == compare.direction);
+                this.piece == compare.piece && this.take == compare.take);
     }
 
 

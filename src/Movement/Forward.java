@@ -9,14 +9,12 @@ public class Forward implements Action {
     private final Piece piece;
     private final Position currentPosition;
     private final Position nextPosition;
-    private final Direction direction;
 
 
-    public Forward(Piece piece, Position currentPosition, Position nextPosition, Direction direction) {
+    public Forward(Piece piece, Position currentPosition, Position nextPosition) {
         this.piece = piece;
         this.currentPosition = currentPosition;
         this.nextPosition = nextPosition;
-        this.direction = direction;
     }
 
     @Override
@@ -46,7 +44,7 @@ public class Forward implements Action {
         Forward compare = (Forward) a;
 
         return (this.currentPosition == compare.currentPosition && this.nextPosition == compare.nextPosition &&
-                this.piece == compare.piece && this.direction == compare.direction);
+                this.piece == compare.piece);
     }
 
 }

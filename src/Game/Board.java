@@ -106,7 +106,15 @@ public class Board {
     }
 
     public ArrayList<Move> getValidMoves(Piece piece) {
+        ArrayList<Move> validMoves = new ArrayList<>();
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Move newMove = null;
+                if (properMovement(positionsMap.get(piece), positions[row][col])) {
 
+                }
+            }
+        }
         return null;
     }
 
@@ -120,6 +128,10 @@ public class Board {
 
 
     public boolean properMovement(Position startPosition, Position goalPosition) {
+
+        if (startPosition.equals(goalPosition)) {
+            return false;
+        }
 
         if (Math.abs(startPosition.getRow() - goalPosition.getRow()) != Math.abs(startPosition.getCol() - goalPosition.getCol())) {
             return false;
