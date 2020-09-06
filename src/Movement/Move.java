@@ -1,19 +1,38 @@
 package Movement;
 
 import Game.Board;
-import Game.Piece;
-import Game.Position;
 
-public interface Move {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-    boolean isValid();
+public class Move {
 
-    boolean apply(Board board);
+    List<Action> actions;
 
-    void undo(Board board);
+    public Move(List<Action> actions) {
+        this.actions = new ArrayList<>();
+        for (Action a : actions) {
+            this.actions.add(a);
+        }
+    }
 
-    Position getNextPosition();
+    public boolean apply(Board board) {
+        for (Action a : actions) {
+            a.apply(board);
+        }
+        return true;
+    }
 
-    Piece getCurrentPiece();
-
+    public boolean undo(Board board) {
+        ArrayList<Action> tempActions = new ArrayList<>();
+        for (Action a : actions) {
+            tempActions.add(a);
+        }
+        Collections.reverse(tempActions);
+        for (Action a : tempActions) {
+            a.undo(board);
+        }
+        return true;
+    }
 }

@@ -4,7 +4,7 @@ import Game.Board;
 import Game.Piece;
 import Game.Position;
 
-public class Forward implements Move {
+public class Forward implements Action {
     private final Piece movingPiece;
     private final Position currentPosition;
     private final Position nextPosition;

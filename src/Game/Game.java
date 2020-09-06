@@ -2,7 +2,7 @@ package Game;
 
 import Movement.Forward;
 import Movement.Jump;
-import Movement.Move;
+import Movement.Action;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +19,7 @@ public class Game extends JPanel {
 
     // Gameplay
     private int currentPlayer;
-    private Stack<Move> previousMoves;
+    private Stack<Action> previousActions;
     private boolean forceJump = false;
 
     // Display
@@ -31,7 +31,7 @@ public class Game extends JPanel {
 
     public Game() {
         currentPlayer = 1;
-        previousMoves = new Stack<>();
+        previousActions = new Stack<>();
         initBoard(size, rowsOfPieces);
         new Timer(delay, e->repaint()).start();
         currentBoard.highlightMovable(currentPlayer);
@@ -51,15 +51,15 @@ public class Game extends JPanel {
             selectedPosition = currentBoard.getPositionAt(row, col);
             if (selectedPosition != null) {
                 ArrayList<Piece> takePiece = currentBoard.findTakePiece(selectedPiece, selectedPosition);
-                Move newMove = forwardOrJump(takePiece);
+                Action newAction = forwardOrJump(takePiece);
                 if (forceJump) {
-                    if (currentBoard.canAnyJump(currentPlayer) && newMove.getClass().equals(Forward.class)) {
+                    if (currentBoard.canAnyJump(currentPlayer) && newAction.getClass().equals(Forward.class)) {
                         return;
                     }
                 }
-                if (newMove.apply(currentBoard)) {
+                if (newAction.apply(currentBoard)) {
                     currentBoard.checkPromoted(selectedPiece);
-                    previousMoves.add(newMove);
+                    previousActions.add(newAction);
                     currentBoard.removePositionHighlights();
                     selectedPiece.setSelected(false);
                     selectedPiece = null;
@@ -88,7 +88,7 @@ public class Game extends JPanel {
         repaint();
     }
 
-    public Move forwardOrJump(ArrayList<Piece> takePiece) {
+    public Action forwardOrJump(ArrayList<Piece> takePiece) {
         if (!takePiece.isEmpty()) {
             return new Jump(selectedPiece, takePiece, selectedPosition, currentBoard.pieceAt(selectedPosition));
         } else {

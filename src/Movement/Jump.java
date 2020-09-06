@@ -7,7 +7,7 @@ import Game.Position;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Jump implements Move {
+public class Jump implements Action {
     private final Piece movingPiece;
     private final ArrayList<Piece> takePieces;
     private final Position currentPosition;

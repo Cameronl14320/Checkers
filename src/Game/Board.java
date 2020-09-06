@@ -2,11 +2,11 @@ package Game;
 
 import Movement.Forward;
 import Movement.Jump;
+import Movement.Action;
 import Movement.Move;
 
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 public class Board {
 
@@ -81,8 +81,8 @@ public class Board {
         for (Position pos : pieces.keySet()) {
             Piece p = pieces.get(pos);
             if (p.matchingPlayer(player)) {
-                ArrayList<Move> validMoves = getValidMoves(p, false, false);
-                if (!validMoves.isEmpty()) {
+                ArrayList<Action> validActions = getValidMoves(p, false, false);
+                if (!validActions.isEmpty()) {
                     p.setMovable(true);
                 }
             }
@@ -110,8 +110,8 @@ public class Board {
     }
 
     public boolean canJump(Piece piece) {
-        ArrayList<Move> validMoves = getValidMoves(piece, true, false);
-        for (Move m : validMoves) {
+        ArrayList<Action> validActions = getValidMoves(piece, true, false);
+        for (Action m : validActions) {
             if (m.getClass().equals(Jump.class)) {
                 return true;
             }
@@ -137,17 +137,29 @@ public class Board {
         }
         validPositions = new ArrayList<>();
 
-        ArrayList<Move> validMoves = getValidMoves(piece, mustJump, true);
+        ArrayList<Action> validActions = getValidMoves(piece, mustJump, true);
 
-        for (Move m : validMoves) {
+        for (Action m : validActions) {
             Position p = m.getNextPosition();
             p.setHighlightTile(true);
         }
     }
 
-    public ArrayList<Move> getValidMoves(Piece piece, boolean mustJump, boolean extraJump) {
-        ArrayList<Move> validMoves = new ArrayList<>();
-        Move nextMove = null;
+    public ArrayList<Move> getValidMoves(Piece piece) {
+
+    }
+
+    public ArrayList<Forward> getAllForwards(Piece piece) {
+
+    }
+
+    public ArrayList<Jump> getAllJumps(Piece piece) {
+
+    }
+
+    public ArrayList<Action> getValidMoves(Piece piece, boolean mustJump, boolean extraJump) {
+        ArrayList<Action> validActions = new ArrayList<>();
+        Action nextAction = null;
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Position nextPosition = positions[row][col];
@@ -155,47 +167,43 @@ public class Board {
                 // Determine if able to take a piece
                 if (!takePieces.isEmpty()) {
                     if (nextPosition != null) {
-                        nextMove = new Jump(piece, takePieces, nextPosition, pieceAt(nextPosition));
-                        /* TODO: Recursion to find all Jumps from this Jump Move
-                            Use the MultiJump class to store multiple Jumps that apply in a sequence
-                         */
-
+                        nextAction = new Jump(piece, takePieces, nextPosition, pieceAt(nextPosition));
                     }
                     // Determine if standard movement available
                 } else {
-                    nextMove = new Forward(piece, nextPosition, pieceAt(nextPosition));
+                    nextAction = new Forward(piece, nextPosition, pieceAt(nextPosition));
                 }
                 // Add it to available moves
-                if (nextMove != null && nextMove.isValid()) {
+                if (nextAction != null && nextAction.isValid()) {
                     if (mustJump) {
-                        if (nextMove.getClass().equals(Jump.class)) {
-                            validMoves.add(nextMove);
+                        if (nextAction.getClass().equals(Jump.class)) {
+                            validActions.add(nextAction);
                         }
                     } else {
-                        validMoves.add(nextMove);
+                        validActions.add(nextAction);
                     }
-                    nextMove = null;
+                    nextAction = null;
                 }
             }
         }
 
         if (piece.getIsPromoted()) {
             boolean canJump = false;
-            ArrayList<Move> removeMoves = new ArrayList<>();
-            for (Move m : validMoves) {
+            ArrayList<Action> removeActions = new ArrayList<>();
+            for (Action m : validActions) {
                 if (m.getClass().equals(Jump.class)) {
                     canJump = true;
                 } else {
-                    removeMoves.add(m);
+                    removeActions.add(m);
                 }
             }
             if (canJump) {
-                for (Move m : removeMoves) {
-                    validMoves.remove(m);
+                for (Action m : removeActions) {
+                    validActions.remove(m);
                 }
             }
         }
-        return validMoves;
+        return validActions;
     }
 
 
