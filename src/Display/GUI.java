@@ -88,7 +88,9 @@ public class GUI {
             JOptionPane.showMessageDialog(null, "Game hasn't started yet");
             return;
         }
-        game.undoMove();
+        if (!game.undoMove()) {
+            JOptionPane.showMessageDialog(null, "No more moves to undo");
+        }
     }
 
     private void endTurn() {

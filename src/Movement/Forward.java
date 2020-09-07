@@ -10,6 +10,7 @@ public class Forward implements Action {
     private final Position currentPosition;
     private final Position nextPosition;
     private final boolean pieceAt;
+    private final boolean wasPromoted;
 
 
     public Forward(Piece piece, Position currentPosition, Position nextPosition, boolean pieceAt) {
@@ -17,6 +18,7 @@ public class Forward implements Action {
         this.currentPosition = currentPosition;
         this.nextPosition = nextPosition;
         this.pieceAt = pieceAt;
+        this.wasPromoted = piece.isPromoted();
     }
 
     @Override
@@ -75,6 +77,7 @@ public class Forward implements Action {
     public void undo(Board board) {
         board.removePiece(piece, nextPosition);
         board.addPiece(piece, currentPosition);
+        piece.setPromoted(wasPromoted);
     }
 
     @Override

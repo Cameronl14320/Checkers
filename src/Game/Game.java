@@ -110,16 +110,20 @@ public class Game extends JPanel {
                 currentBoard.getValidPositions(selectedPiece, true);
                 selectedPiece.setSelected(true);
             } else {
+                previousMoves.add(currentMove);
                 changeTurn();
+
             }
         }
     }
 
-    public void undoMove() {
+    public boolean undoMove() {
         if (previousMoves.isEmpty()) {
-            return;
+            return false;
         }
         previousMoves.pop().undo(currentBoard);
+        changeTurn();
+        return true;
     }
 
     public void handleSelection(Piece newSelect) {
@@ -164,6 +168,14 @@ public class Game extends JPanel {
         return gameState;
     }
 
+    public int getCurrentPlayer() {
+        return this.currentPlayer;
+    }
+
+    public boolean getMustJump() {
+        return this.mustJump;
+    }
+
     private void finishGame() {
 
     }
@@ -183,7 +195,6 @@ public class Game extends JPanel {
             currentPlayer = 1;
         }
         mustJump = false;
-        previousMoves.add(currentMove);
         currentMove = new Move(new ArrayList<>());
         currentBoard.removePieceHighlights();
         currentBoard.removePositionHighlights();

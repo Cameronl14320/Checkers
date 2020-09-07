@@ -15,6 +15,7 @@ public class Jump implements Action {
     private final Position takePosition;
     private final Position nextPosition;
     private final boolean pieceAt;
+    private final boolean wasPromoted;
 
 
     public Jump(Piece piece, Piece take, Position currentPosition, Position takePosition, Position nextPosition, boolean pieceAt) {
@@ -24,6 +25,7 @@ public class Jump implements Action {
         this.takePosition = takePosition;
         this.nextPosition = nextPosition;
         this.pieceAt = pieceAt;
+        this.wasPromoted = piece.isPromoted();
     }
 
     @Override
@@ -43,6 +45,18 @@ public class Jump implements Action {
 
         if (piece.matchingPlayer(take.getPlayer())) {
             return false;
+        }
+
+        if (!piece.isPromoted()) {
+            if (piece.isBlack()) {
+                if (nextPosition.getRow() - currentPosition.getRow() > 0) {
+                    return false;
+                }
+            } else {
+                if (nextPosition.getRow() - currentPosition.getRow() < 0) {
+                    return false;
+                }
+            }
         }
 
         if (piece.equals(take)) {
@@ -84,6 +98,7 @@ public class Jump implements Action {
         board.removePiece(piece, nextPosition);
         board.addPiece(take, takePosition);
         board.addPiece(piece, currentPosition);
+        piece.setPromoted(wasPromoted);
     }
 
     @Override

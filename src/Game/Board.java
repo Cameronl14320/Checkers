@@ -7,6 +7,7 @@ import Movement.Move;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class Board {
 
@@ -148,11 +149,10 @@ public class Board {
         }
     }
 
-    public Set<Move> allValidMoves() {
-        Set<Move> allValidMoves = new HashSet<>();
+    public List<Move> allValidMoves() {
+        List<Move> allValidMoves = new ArrayList<>();
         for (Piece p : positionsMap.keySet()) {
-            Set<Move> tempMoves = new HashSet<>();
-            tempMoves = getValidMoves(p);
+            Set<Move> tempMoves = getValidMoves(p);
             for (Move m : tempMoves) {
                 allValidMoves.add(m);
             }
@@ -160,8 +160,8 @@ public class Board {
         return allValidMoves;
     }
 
-    public Set<Move> allValidMovesPlayer(int player, boolean mustJump) {
-        Set<Move> allValidMoves = new HashSet<>();
+    public List<Move> allValidMovesPlayer(int player, boolean mustJump) {
+        List<Move> allValidMoves = new ArrayList<>();
         for (Piece p : positionsMap.keySet()) {
             Set<Move> tempMoves = new HashSet<>();
             if (p.matchingPlayer(player)) {

@@ -53,6 +53,10 @@ public class Move {
         return true;
     }
 
+    public List<Action> getActions() {
+        return this.actions;
+    }
+
     public List<Position> getNextPositions() {
         ArrayList<Position> positions = new ArrayList<>();
         for (Action a : actions) {
