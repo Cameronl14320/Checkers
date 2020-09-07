@@ -6,7 +6,6 @@ import Movement.Action;
 import Movement.Move;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ public class Game extends JPanel {
     // Core
     private final int size = 8;
     private final int rowsOfPieces = 1;
-    private Board currentBoard;
+    public Board currentBoard;
 
     // Gameplay
     private int currentPlayer;
@@ -91,7 +90,7 @@ public class Game extends JPanel {
         if (action.getClass().equals(Jump.class)) {
             lastWasJump = true;
         } else {
-            if (forceJump && !currentBoard.getAllValidMoves(currentPlayer, true).isEmpty()) {
+            if (forceJump && !currentBoard.allValidMovesPlayer(currentPlayer, true).isEmpty()) {
                 return;
             }
         }
@@ -127,7 +126,7 @@ public class Game extends JPanel {
         if (newSelect.matchingPlayer(currentPlayer)) {
             if (mustJump) {
                 return;
-            } else if (forceJump && !currentBoard.getAllValidMoves(currentPlayer, true).isEmpty()) {
+            } else if (forceJump && !currentBoard.allValidMovesPlayer(currentPlayer, true).isEmpty()) {
                 if (currentBoard.canJump(newSelect)) {
                     selectedPiece = newSelect;
                     currentBoard.getValidPositions(newSelect, true);

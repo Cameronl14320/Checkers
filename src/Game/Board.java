@@ -148,7 +148,19 @@ public class Board {
         }
     }
 
-    public Set<Move> getAllValidMoves(int player, boolean mustJump) {
+    public Set<Move> allValidMoves() {
+        Set<Move> allValidMoves = new HashSet<>();
+        for (Piece p : positionsMap.keySet()) {
+            Set<Move> tempMoves = new HashSet<>();
+            tempMoves = getValidMoves(p);
+            for (Move m : tempMoves) {
+                allValidMoves.add(m);
+            }
+        }
+        return allValidMoves;
+    }
+
+    public Set<Move> allValidMovesPlayer(int player, boolean mustJump) {
         Set<Move> allValidMoves = new HashSet<>();
         for (Piece p : positionsMap.keySet()) {
             Set<Move> tempMoves = new HashSet<>();
@@ -278,9 +290,6 @@ public class Board {
         }
         return null;
     }
-
-
-
 
     public boolean properMovement(Position startPosition, Position goalPosition, int expectedDistance) {
 
