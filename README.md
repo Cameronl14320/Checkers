@@ -5,7 +5,9 @@
  
 ## GUI
  - Board display (*done*)
- - Main/Start Screen (*not done*)
+ - Main/Start Screen (*done*)
+ - Undo button (*done*)
+ - End jump early button (*done*)
 
 ## Game (50%)
  - Turn Based Gameplay (*done*)
@@ -16,10 +18,9 @@
  - King Promotion (*done*) - allows movement in all directions (up and down)
  - Forwards Movement (*done*) - if not promoted, only allowed to move towards other side
  - Basic Jump/Attack (*done*)
- - Multijump on same direction (*done*)
- - Multijump on different direction (*not done*) - will require a revamp for the multijump system
+ - Multijump (*done*) - Can jump consecutively (optional)
   
 ## Monte Carlo (35% weighted)
- - Get all valid moves (*done*) - may require some changes depending on Multijump revamp
+ - Get all valid moves (*done*)
  - Recursive Probability Decision Making (*not done*)
  
