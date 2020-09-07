@@ -15,7 +15,7 @@ import java.util.Stack;
 
 public class Game extends JPanel {
 
-    private enum gameStates {
+    public enum gameStates {
             MENU, RUNNING, BLACK_WIN, WHITE_WIN, STALEMATE
     }
 
@@ -35,7 +35,6 @@ public class Game extends JPanel {
     // Display
     private Piece selectedPiece;
     private Position selectedPosition;
-    private final int delay = 40; // 40ms repaint delay
     private int rectSize = 20;
 
     public Game() {
@@ -44,7 +43,6 @@ public class Game extends JPanel {
         gameState = gameStates.RUNNING;
         initBoard(size, rowsOfPieces);
         changeTurn();
-        new Timer(delay, e->repaint()).start();
         currentBoard.highlightMovable(currentPlayer, forceJump);
     }
 
@@ -163,11 +161,21 @@ public class Game extends JPanel {
         return false;
     }
 
+    public gameStates getGameState() {
+        return gameState;
+    }
+
     private void finishGame() {
 
     }
 
-
+    public boolean endExtraJump() {
+        if (mustJump) {
+            changeTurn();
+            return true;
+        }
+        return false;
+    }
 
     private void changeTurn() {
         if (currentPlayer == 1) {
