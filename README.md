@@ -3,24 +3,25 @@
  
 # Implemented:
  
-## GUI
+## GUI (100%)
  - Board display (*done*)
+ - Game restart (*done*)
  - Main/Start Screen (*done*)
  - Undo button (*done*)
  - End jump early button (*done*)
 
-## Game (50%)
+## Game (100%)
  - Turn Based Gameplay (*done*)
- - Game finish (*not done*)
+ - Game finish (*done*)
  
  
-## Pieces (80%)
+## Pieces (100%)
  - King Promotion (*done*) - allows movement in all directions (up and down)
  - Forwards Movement (*done*) - if not promoted, only allowed to move towards other side
  - Basic Jump/Attack (*done*)
  - Multijump (*done*) - Can jump consecutively (optional)
   
-## Monte Carlo (35% weighted)
+## Monte Carlo (50%)
  - Get all valid moves (*done*)
  - Recursive Probability Decision Making (*not done*)
  
