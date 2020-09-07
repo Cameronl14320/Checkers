@@ -182,7 +182,7 @@ public class Board {
         return validMoves;
     }
 
-    public Set<Move> getAllForwards(Piece piece) {
+    private Set<Move> getAllForwards(Piece piece) {
         Set<Move> validForwards = new HashSet<>();
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
@@ -203,7 +203,7 @@ public class Board {
         return validForwards;
     }
 
-    public Set<Move> getAllJumps(Piece piece) {
+    private Set<Move> getAllJumps(Piece piece) {
         Set<Move> validJumps = new HashSet<>();
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
@@ -229,6 +229,26 @@ public class Board {
 
     public boolean canJump(Piece piece) {
         return !getAllJumps(piece).isEmpty();
+    }
+
+    public int returnWinningPlayer() {
+        int blackPieces = 0;
+        int whitePieces = 0;
+        for (Piece p : positionsMap.keySet()) {
+            if (p.getPlayer() == 1) {
+                blackPieces++;
+            } else {
+                whitePieces++;
+            }
+        }
+
+        if (blackPieces == 0) {
+            return 0;
+        } else if (whitePieces == 0) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
 
     public Piece findTakePiece(Position startPosition, Position goalPosition) {
@@ -258,6 +278,8 @@ public class Board {
         }
         return null;
     }
+
+
 
 
     public boolean properMovement(Position startPosition, Position goalPosition, int expectedDistance) {

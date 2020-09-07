@@ -26,6 +26,14 @@ public class Forward implements Action {
             return false;
         }
 
+        if (currentPosition.getRow() == nextPosition.getRow()) {
+            return false;
+        }
+
+        if (currentPosition.getCol() == nextPosition.getCol()) {
+            return false;
+        }
+
         if (!piece.isPromoted()) {
             if (piece.isBlack()) {
                 if (nextPosition.getRow() - currentPosition.getRow() > 0) {

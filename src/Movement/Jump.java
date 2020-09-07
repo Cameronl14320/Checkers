@@ -29,6 +29,14 @@ public class Jump implements Action {
     @Override
     public boolean isValid() {
 
+        if (currentPosition.getRow() == nextPosition.getRow()) {
+            return false;
+        }
+
+        if (currentPosition.getCol() == nextPosition.getCol()) {
+            return false;
+        }
+
         if (piece == null || take == null) {
             return false;
         }

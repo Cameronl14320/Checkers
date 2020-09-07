@@ -6,6 +6,7 @@ import Movement.Action;
 import Movement.Move;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -13,6 +14,10 @@ import java.util.Set;
 import java.util.Stack;
 
 public class Game extends JPanel {
+
+    private enum gameStates {
+            MENU, RUNNING, BLACK_WIN, WHITE_WIN, STALEMATE
+    }
 
     // Core
     private final int size = 8;
@@ -23,8 +28,9 @@ public class Game extends JPanel {
     private int currentPlayer;
     private Move currentMove;
     private Stack<Move> previousMoves;
-    private boolean forceJump = true;
+    private boolean forceJump = false;
     private boolean mustJump = false;
+    private gameStates gameState;
 
     // Display
     private Piece selectedPiece;
@@ -35,6 +41,7 @@ public class Game extends JPanel {
     public Game() {
         currentPlayer = 0;
         previousMoves = new Stack<>();
+        gameState = gameStates.RUNNING;
         initBoard(size, rowsOfPieces);
         changeTurn();
         new Timer(delay, e->repaint()).start();
@@ -48,6 +55,9 @@ public class Game extends JPanel {
     }
 
     public void handleActions(int row, int col) {
+        if (isGameOver()) {
+            return;
+        }
         if (currentBoard.pieceAt(row, col)) {
             handleSelection(currentBoard.getPieceAt(row, col));
         } else {
@@ -92,18 +102,34 @@ public class Game extends JPanel {
             currentBoard.checkPromoted(selectedPiece);
             currentMove.addAction(action);
 
+            if (isGameOver()) {
+                System.out.println("OMG THE GAME IS OVER");
+            }
             if (lastWasJump && currentBoard.canJump(selectedPiece)) {
                 // TODO : make end turn button
                 mustJump = true;
+                currentBoard.removePieceHighlights();
+                currentBoard.removePositionHighlights();
+                currentBoard.getValidPositions(selectedPiece, true);
+                selectedPiece.setSelected(true);
             } else {
                 changeTurn();
             }
         }
     }
 
+    public void undoMove() {
+        if (previousMoves.isEmpty()) {
+            return;
+        }
+        previousMoves.pop().undo(currentBoard);
+    }
+
     public void handleSelection(Piece newSelect) {
         if (newSelect.matchingPlayer(currentPlayer)) {
-            if (forceJump && !currentBoard.getAllValidMoves(currentPlayer, true).isEmpty()) {
+            if (mustJump) {
+                return;
+            } else if (forceJump && !currentBoard.getAllValidMoves(currentPlayer, true).isEmpty()) {
                 if (currentBoard.canJump(newSelect)) {
                     selectedPiece = newSelect;
                     currentBoard.getValidPositions(newSelect, true);
@@ -113,6 +139,32 @@ public class Game extends JPanel {
                 currentBoard.getValidPositions(newSelect, false);
             }
         }
+
+        if (selectedPiece != null) {
+            selectedPiece.setSelected(true);
+        }
+    }
+
+    public boolean isGameOver() {
+        int winner = currentBoard.returnWinningPlayer();
+        if (winner != -1) {
+            if (winner == 1) {
+                gameState = gameStates.BLACK_WIN;
+            } else {
+                gameState = gameStates.WHITE_WIN;
+            }
+        } else if (previousMoves.size() > 75) {
+            gameState = gameStates.STALEMATE;
+        }
+
+        if (gameState != gameStates.RUNNING) {
+            return true;
+        }
+        return false;
+    }
+
+    private void finishGame() {
+
     }
 
 
