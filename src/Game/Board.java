@@ -484,18 +484,6 @@ public class Board {
         StringBuilder boardString = new StringBuilder();
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
-                boardString.append(positions[row][col].toString());
-            }
-            boardString.append("|\n");
-        }
-        boardString.append("\n");
-
-        for (Position pos : pieces.keySet()) {
-            boardString.append(pieces.get(pos));
-        }
-
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++) {
                 if (pieces.get(positions[row][col]) != null) {
                     boardString.append(pieces.get(positions[row][col]).toString());
                 } else {

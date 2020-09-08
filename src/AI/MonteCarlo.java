@@ -4,9 +4,7 @@ import Game.Game;
 import Movement.Action;
 import Movement.Move;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
     Selection: Start from root R and select successive child nodes until a leaf node L is reached. The root is the current game state and a leaf is any node that has a potential child from which no simulation (playout) has yet been initiated. The section below says more about a way of biasing choice of child nodes that lets the game tree expand towards the most promising moves, which is the essence of Monte Carlo tree search.
@@ -24,7 +22,7 @@ public class MonteCarlo {
 
     public MonteCarlo(Game game) {
         this.game = game;
-        this.root = new Node(game.getValidMoves(game.getCurrentPlayer(), game.getMustJump()), null);
+        this.root = new Node(game.getValidMoves(), null);
     }
 
     public Move search() {
@@ -54,16 +52,18 @@ public class MonteCarlo {
     }
 
     public Game.gameStates randomPlaythrough(Game game) {
-        int moveCount = 0;
+        int moveCount = game.undoSize();
         while (!game.isGameOver()) {
-            List<Move> validMoves = game.getValidMoves(game.getCurrentPlayer(), game.getMustJump());
+            List<Move> validMoves = game.getValidMoves();
             Move randomMove = validMoves.get((int) (Math.random() * validMoves.size()));
             game.applyMove(randomMove);
+            game.repaint();
+            //System.out.println(game.toString());
             moveCount += 1;
         }
 
         Game.gameStates result = game.getGameState();
-        for (int i = 0; i < moveCount; i++) {
+        for (int i = 0; i < moveCount - game.undoSize(); i++) {
             game.undoMove();
         }
         return result;
@@ -110,7 +110,7 @@ public class MonteCarlo {
             if (child == null) {
                 Game.gameStates childTargetState = findCurrentTargetState(game);
                 game.applyMove(selectedMove);
-                List<Move> childValidMoves = game.getValidMoves(game.getCurrentPlayer(), game.getMustJump());
+                List<Move> childValidMoves = game.getValidMoves();
                 game.undoMove();
 
                 child = new Node(childValidMoves, selectedMove);
@@ -129,7 +129,6 @@ public class MonteCarlo {
                 }
 
                 return randomPlaythroughResult;
-
             } else {
                 Game.gameStates result = child.search(game);
                 if (result == targetState) {
@@ -138,8 +137,6 @@ public class MonteCarlo {
                 return result;
             }
         }
-
-
 
         public Move ucbSelectMove() {
             double a = Math.sqrt(2);
@@ -164,6 +161,7 @@ public class MonteCarlo {
         public Move expSelectMove() {
             Move bestMove = null;
             double bestMoveScore = Float.NEGATIVE_INFINITY;
+
             for (Move m : validMoves) {
                 Node child = moveToChildMap.get(m);
                 if (child == null) {

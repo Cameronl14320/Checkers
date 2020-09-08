@@ -51,6 +51,10 @@ public class Game extends JPanel {
     public void convertMouse(MouseEvent e) {
         int row = e.getY()/rectSize;
         int col = e.getX()/rectSize;
+
+        if (computer && currentPlayer != humanPlayer) {
+            return;
+        }
         handleActions(row, col);
     }
 
@@ -112,6 +116,7 @@ public class Game extends JPanel {
     }
 
     public void applyMove(Action action) {
+        System.out.println(this.toString());
         boolean lastWasJump = false;
         if (action.getClass().equals(Jump.class)) {
             lastWasJump = true;
@@ -135,8 +140,9 @@ public class Game extends JPanel {
             } else {
                 previousMoves.add(currentMove);
                 changeTurn();
-                handleAI();
             }
+
+
         }
     }
 
@@ -149,17 +155,27 @@ public class Game extends JPanel {
         return true;
     }
 
+    public int undoSize() {
+        return previousMoves.size();
+    }
 
     public boolean isGameOver() {
         int winner = currentBoard.returnWinningPlayer();
+        gameState = gameStates.RUNNING;
         if (winner != -1) {
             if (winner == 1) {
                 gameState = gameStates.BLACK_WIN;
             } else {
                 gameState = gameStates.WHITE_WIN;
             }
-        } else if (previousMoves.size() > 200) {
+        } else if (previousMoves.size() > 75) {
             gameState = gameStates.STALEMATE;
+        } else if (getValidMoves().isEmpty()) {
+            if (currentPlayer == 0) {
+                gameState = gameStates.BLACK_WIN;
+            } else {
+                gameState = gameStates.WHITE_WIN;
+            }
         }
 
         if (gameState != gameStates.RUNNING) {
@@ -195,8 +211,11 @@ public class Game extends JPanel {
         selectedPosition = null;
     }
 
-    private void handleAI() {
+    public void handleAI() {
         if (isGameOver()) {
+            return;
+        }
+        if (currentPlayer == humanPlayer) {
             return;
         }
         if (computer) {
@@ -218,13 +237,11 @@ public class Game extends JPanel {
         if (AIMove == null) {
             return;
         }
-        for (Action a : AIMove.getActions()) {
-            applyMove(a);
-        }
+        applyMove(AIMove);
     }
 
-    public java.util.List<Move> getValidMoves(int player, boolean mustJump) {
-        return this.currentBoard.allValidMoves(player, mustJump);
+    public java.util.List<Move> getValidMoves() {
+        return this.currentBoard.allValidMoves(currentPlayer, mustJump);
     }
 
     public void initBoard(int size, int rowsOfPieces) {
@@ -246,7 +263,7 @@ public class Game extends JPanel {
         return this.currentPlayer;
     }
 
-    public boolean getMustJump() {
-        return this.mustJump;
+    public String toString() {
+        return currentBoard.toString();
     }
 }
