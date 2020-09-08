@@ -16,7 +16,7 @@ import java.util.Stack;
 public class Game extends JPanel {
 
     public enum gameStates {
-            MENU, RUNNING, BLACK_WIN, WHITE_WIN, STALEMATE
+            RUNNING, BLACK_WIN, WHITE_WIN, STALEMATE
     }
 
     // Core
@@ -25,7 +25,7 @@ public class Game extends JPanel {
     private Board currentBoard;
 
     // Gameplay
-    private boolean computer = true;
+    private boolean computer = false;
     private int humanPlayer = 1;
     private int currentPlayer;
     private Move currentMove;
@@ -103,20 +103,52 @@ public class Game extends JPanel {
                     action = new Forward(selectedPiece, currentPosition, selectedPosition, currentBoard.pieceAt(selectedPosition));
                 }
                 if (action != null) {
-                    applyMove(action);
+                    applyMovePlayer(action);
                 }
             }
         }
     }
 
-    public void applyMove(Move m) {
+    public void applyMovePlayer(Move m) {
         for (Action a : m.getActions()) {
-            applyMove(a);
+            applyMovePlayer(a);
         }
     }
 
-    public void applyMove(Action action) {
-        System.out.println(this.toString());
+    public void applyMovePlayer(Action action) {
+        boolean lastWasJump = false;
+        if (action.getClass().equals(Jump.class)) {
+            lastWasJump = true;
+        } else {
+            if (forceJump && !currentBoard.allValidMoves(currentPlayer, true).isEmpty()) {
+                return;
+            }
+        }
+
+        if (action.apply(currentBoard)) {
+            currentBoard.checkPromoted(action.getPiece());
+            currentMove.addAction(action);
+            if (lastWasJump && currentBoard.canJump(action.getPiece())) {
+                mustJump = true;
+                currentBoard.removePieceHighlights();
+                currentBoard.removePositionHighlights();
+                currentBoard.getValidPositions(action.getPiece(), true);
+                action.getPiece().setSelected(true);
+            } else {
+                previousMoves.add(currentMove);
+                changeTurn();
+            }
+            handleAI();
+        }
+    }
+
+    public void applyMoveAI(Move m) {
+        for (Action a : m.getActions()) {
+            applyMoveAI(a);
+        }
+    }
+
+    public void applyMoveAI(Action action) {
         boolean lastWasJump = false;
         if (action.getClass().equals(Jump.class)) {
             lastWasJump = true;
@@ -131,7 +163,6 @@ public class Game extends JPanel {
             currentMove.addAction(action);
 
             if (lastWasJump && currentBoard.canJump(action.getPiece())) {
-                // TODO : make end turn button
                 mustJump = true;
                 currentBoard.removePieceHighlights();
                 currentBoard.removePositionHighlights();
@@ -141,8 +172,6 @@ public class Game extends JPanel {
                 previousMoves.add(currentMove);
                 changeTurn();
             }
-
-
         }
     }
 
@@ -168,7 +197,7 @@ public class Game extends JPanel {
             } else {
                 gameState = gameStates.WHITE_WIN;
             }
-        } else if (previousMoves.size() > 75) {
+        } else if (previousMoves.size() > 150) {
             gameState = gameStates.STALEMATE;
         } else if (getValidMoves().isEmpty()) {
             if (currentPlayer == 0) {
@@ -184,9 +213,6 @@ public class Game extends JPanel {
         return false;
     }
 
-    private void finishGame() {
-
-    }
 
     public boolean endExtraJump() {
         if (mustJump) {
@@ -215,11 +241,9 @@ public class Game extends JPanel {
         if (isGameOver()) {
             return;
         }
-        if (currentPlayer == humanPlayer) {
-            return;
-        }
+        int currentP = currentPlayer;
         if (computer) {
-            while (currentPlayer != humanPlayer) {
+            while (currentPlayer == currentP) {
                 findAIMove();
             }
         }
@@ -229,15 +253,9 @@ public class Game extends JPanel {
         if (!computer) {
             return;
         }
-        if (currentPlayer == humanPlayer) {
-            return;
-        }
         MonteCarlo AI = new MonteCarlo(this);
         Move AIMove = AI.search();
-        if (AIMove == null) {
-            return;
-        }
-        applyMove(AIMove);
+        applyMoveAI(AIMove);
     }
 
     public java.util.List<Move> getValidMoves() {

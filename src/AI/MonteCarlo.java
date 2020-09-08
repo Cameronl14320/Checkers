@@ -1,7 +1,6 @@
 package AI;
 
 import Game.Game;
-import Movement.Action;
 import Movement.Move;
 
 import java.util.*;
@@ -56,10 +55,9 @@ public class MonteCarlo {
         while (!game.isGameOver()) {
             List<Move> validMoves = game.getValidMoves();
             Move randomMove = validMoves.get((int) (Math.random() * validMoves.size()));
-            game.applyMove(randomMove);
+            game.applyMoveAI(randomMove);
             game.repaint();
-            //System.out.println(game.toString());
-            moveCount += 1;
+            //moveCount += 1;
         }
 
         Game.gameStates result = game.getGameState();
@@ -88,7 +86,7 @@ public class MonteCarlo {
         public Game.gameStates search(Game game) {
             Game.gameStates targetState = findCurrentTargetState(game);
 
-            game.applyMove(move);
+            game.applyMoveAI(move);
             Game.gameStates simulationResult = this._search(game, targetState);
             game.undoMove();
 
@@ -109,14 +107,14 @@ public class MonteCarlo {
 
             if (child == null) {
                 Game.gameStates childTargetState = findCurrentTargetState(game);
-                game.applyMove(selectedMove);
+                game.applyMoveAI(selectedMove);
                 List<Move> childValidMoves = game.getValidMoves();
                 game.undoMove();
 
                 child = new Node(childValidMoves, selectedMove);
                 moveToChildMap.put(selectedMove, child);
 
-                game.applyMove(selectedMove);
+                game.applyMoveAI(selectedMove);
                 Game.gameStates randomPlaythroughResult = randomPlaythrough(game);
                 game.undoMove();
 

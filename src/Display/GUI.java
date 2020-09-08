@@ -55,7 +55,6 @@ public class GUI {
 
         gameFrame.pack();
         gameFrame.setVisible(true);
-
     }
 
     private void createGame() {
@@ -107,7 +106,6 @@ public class GUI {
         if (game == null) {
             throw new Error("updateGame() running when invalid");
         }
-
         game.repaint();
     }
 }
