@@ -21,7 +21,11 @@
  - Basic Jump/Attack (*done*)
  - Multijump (*done*) - Can jump consecutively (optional)
   
-## Monte Carlo (50%)
+## Monte Carlo (100%)
  - Get all valid moves (*done*)
- - Recursive Probability Decision Making (*not done*)
+ - Recursive Probability Decision Making (*done*)
+ 
+## Side Notes
+ - Decision Making takes too much time, needs to be far more efficient. 
+ - Will need to rework on abstracting the Game from the GUI
  
