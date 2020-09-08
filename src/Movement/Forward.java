@@ -4,6 +4,8 @@ import Game.Board;
 import Game.Piece;
 import Game.Position;
 
+import java.util.Objects;
+
 public class Forward implements Action {
 
     private final Piece piece;
@@ -107,5 +109,22 @@ public class Forward implements Action {
                 ", currentPosition=" + currentPosition +
                 ", nextPosition=" + nextPosition +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Forward forward = (Forward) o;
+        return pieceAt == forward.pieceAt &&
+                previousPromotionStatus == forward.previousPromotionStatus &&
+                piece.equals(forward.piece) &&
+                currentPosition.equals(forward.currentPosition) &&
+                nextPosition.equals(forward.nextPosition);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(piece, currentPosition, nextPosition, pieceAt, previousPromotionStatus);
     }
 }

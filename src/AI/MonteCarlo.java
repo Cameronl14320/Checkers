@@ -15,7 +15,7 @@ import java.util.*;
 
 public class MonteCarlo {
     private static final int maxComputeTime = 1 * 500; // .5 seconds
-    private static final int runsPerLoop = 20;
+    private static final int runsPerLoop = 200;
     private Game game;
     private Node root;
 

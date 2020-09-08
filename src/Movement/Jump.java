@@ -6,6 +6,7 @@ import Game.Position;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Jump implements Action {
 
@@ -131,5 +132,24 @@ public class Jump implements Action {
                 ", takePosition=" + takePosition +
                 ", nextPosition=" + nextPosition +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Jump jump = (Jump) o;
+        return pieceAt == jump.pieceAt &&
+                wasPromoted == jump.wasPromoted &&
+                piece.equals(jump.piece) &&
+                take.equals(jump.take) &&
+                currentPosition.equals(jump.currentPosition) &&
+                takePosition.equals(jump.takePosition) &&
+                nextPosition.equals(jump.nextPosition);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(piece, take, currentPosition, takePosition, nextPosition, pieceAt, wasPromoted);
     }
 }

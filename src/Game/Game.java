@@ -175,11 +175,20 @@ public class Game extends JPanel {
         }
         mustJump = false;
         currentMove = new Move(new ArrayList<>());
-        currentBoard.removePieceHighlights();
-        currentBoard.removePositionHighlights();
-        currentBoard.highlightMovable(currentPlayer, forceJump);
+        if (computer) {
+            if (currentPlayer == humanPlayer) {
+                currentBoard.removePieceHighlights();
+                currentBoard.removePositionHighlights();
+                currentBoard.highlightMovable(currentPlayer, forceJump);
+            }
+        } else {
+            currentBoard.removePieceHighlights();
+            currentBoard.removePositionHighlights();
+            currentBoard.highlightMovable(currentPlayer, forceJump);
+        }
         selectedPiece = null;
         selectedPosition = null;
+        getValidMovesCached = null;
     }
 
     public void handleAI() {
@@ -192,16 +201,13 @@ public class Game extends JPanel {
         }
     }
 
-    private void doAIMove() {
-        if (!computer) {
-            return;
+    public List<Move> getValidMovesCached = null;
+
+    public List<Move> getValidMoves() {
+        if (getValidMovesCached == null) {
+            this.getValidMovesCached = this.currentBoard.allValidMoves(currentPlayer, mustJump);
         }
-
-
-    }
-
-    public java.util.List<Move> getValidMoves() {
-        return this.currentBoard.allValidMoves(currentPlayer, mustJump);
+        return this.getValidMovesCached;
     }
 
     public void initBoard(int size, int rowsOfPieces) {

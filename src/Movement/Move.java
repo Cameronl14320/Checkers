@@ -6,6 +6,7 @@ import Game.Position;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Move {
 
@@ -67,5 +68,10 @@ public class Move {
             string.append(a);
         }
         return string.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(actions);
     }
 }

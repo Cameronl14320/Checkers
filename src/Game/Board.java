@@ -155,9 +155,9 @@ public class Board {
             Set<Move> tempMoves = new HashSet<>();
             if (p.matchingPlayer(player)) {
                 if (mustJump) {
-                    tempMoves = getAllJumps(p);
+                    tempMoves =  getAllJumps(p);
                 } else {
-                    tempMoves = getValidMoves(p);
+                    tempMoves =  getValidMoves(p);
                 }
             }
 
@@ -185,19 +185,23 @@ public class Board {
 
     private Set<Move> getAllForwards(Piece piece) {
         Set<Move> validForwards = new HashSet<>();
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++) {
+        int minRow = positionsMap.get(piece).getRow();
+        int minCol = positionsMap.get(piece).getCol();
+        for (int row = minRow - 1; row <= minRow + 1; row ++) {
+            for (int col = minCol - 1; col <= minCol + 1; col++) {
                 Move newMove = null;
-                if (properMovement(positionsMap.get(piece), positions[row][col], 1)) {
-                    Forward newForward = new Forward(piece, positionsMap.get(piece), positions[row][col], pieceAt(row, col));
-                    if (newForward.isValid()) {
-                        ArrayList<Action> newAction = new ArrayList<>();
-                        newAction.add(newForward);
-                        newMove = new Move(newAction);
+                if (checkBounds(row, col)) {
+                    if (properMovement(positionsMap.get(piece), positions[row][col], 1)) {
+                        Forward newForward = new Forward(piece, positionsMap.get(piece), positions[row][col], pieceAt(row, col));
+                        if (newForward.isValid()) {
+                            ArrayList<Action> newAction = new ArrayList<>();
+                            newAction.add(newForward);
+                            newMove = new Move(newAction);
+                        }
                     }
-                }
-                if (newMove != null) {
-                    validForwards.add(newMove);
+                    if (newMove != null) {
+                        validForwards.add(newMove);
+                    }
                 }
             }
         }
@@ -206,22 +210,26 @@ public class Board {
 
     private Set<Move> getAllJumps(Piece piece) {
         Set<Move> validJumps = new HashSet<>();
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++) {
+        int minRow = positionsMap.get(piece).getRow();
+        int minCol = positionsMap.get(piece).getCol();
+        for (int row = minRow - 2; row <= minRow + 2; row ++) {
+            for (int col = minCol - 2; col <= minCol + 2; col++) {
                 Move newMove = null;
-                if (properMovement(positionsMap.get(piece), positions[row][col], 2)) {
-                    Piece takePiece = findTakePiece(positionsMap.get(piece), positions[row][col]);
-                    if (takePiece != null) {
-                        Jump newJump = new Jump(piece, takePiece, positionsMap.get(piece), positionsMap.get(takePiece), positions[row][col], pieceAt(row, col));
-                        if (newJump.isValid()) {
-                            ArrayList<Action> newAction = new ArrayList<>();
-                            newAction.add(newJump);
-                            newMove = new Move(newAction);
+                if (checkBounds(row, col)) {
+                    if (properMovement(positionsMap.get(piece), positions[row][col], 2)) {
+                        Piece takePiece = findTakePiece(positionsMap.get(piece), positions[row][col]);
+                        if (takePiece != null) {
+                            Jump newJump = new Jump(piece, takePiece, positionsMap.get(piece), positionsMap.get(takePiece), positions[row][col], pieceAt(row, col));
+                            if (newJump.isValid()) {
+                                ArrayList<Action> newAction = new ArrayList<>();
+                                newAction.add(newJump);
+                                newMove = new Move(newAction);
+                            }
                         }
                     }
-                }
-                if (newMove != null) {
-                    validJumps.add(newMove);
+                    if (newMove != null) {
+                        validJumps.add(newMove);
+                    }
                 }
             }
         }

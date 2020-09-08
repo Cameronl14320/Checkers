@@ -3,6 +3,7 @@ package Game;
 import Game.Piece;
 
 import java.awt.*;
+import java.util.Objects;
 
 public class Position {
 
@@ -41,5 +42,15 @@ public class Position {
     @Override
     public String toString() {
         return "[" + row + "]" + "[" + col + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Position position = (Position) o;
+        return color == position.color &&
+                row == position.row &&
+                col == position.col;
     }
 }

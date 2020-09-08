@@ -1,6 +1,7 @@
 package Game;
 
 import java.awt.*;
+import java.util.Objects;
 
 public class Piece {
 
@@ -70,6 +71,17 @@ public class Piece {
         } else {
             return "|W";
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Piece piece = (Piece) o;
+        return isPromoted == piece.isPromoted &&
+                isSelected == piece.isSelected &&
+                isMovable == piece.isMovable &&
+                player == piece.player;
     }
 
 }
