@@ -40,10 +40,6 @@ public class Position {
 
     @Override
     public String toString() {
-        if (isBlack()) {
-            return "|B";
-        } else {
-            return "|W";
-        }
+        return "[" + row + "]" + "[" + col + "]";
     }
 }

@@ -14,8 +14,8 @@ import java.util.*;
  */
 
 public class MonteCarlo {
-    private static final int maxComputeTime = 1 * 1000; // 1 second
-    private static final int runsPerLoop = 1;
+    private static final int maxComputeTime = 1 * 500; // .5 seconds
+    private static final int runsPerLoop = 20;
     private Game game;
     private Node root;
 
@@ -25,16 +25,13 @@ public class MonteCarlo {
     }
 
     public Move search() {
-        if (this.game.isGameOver()) {
-            return null;
-        }
+        assert !this.game.isGameOver();
 
         double startTime = System.currentTimeMillis();
-        for (int i = 0; i < runsPerLoop; i++) {
-            if (startTime - System.currentTimeMillis() > maxComputeTime) {
-                break;
+        while (System.currentTimeMillis() - startTime < maxComputeTime) {
+            for (int i = 0; i < runsPerLoop; i++) {
+                this.root._search(this.game, findCurrentTargetState(this.game));
             }
-            this.root._search(this.game, findCurrentTargetState(this.game));
         }
 
         return this.root.expSelectMove();
@@ -51,17 +48,16 @@ public class MonteCarlo {
     }
 
     public Game.gameStates randomPlaythrough(Game game) {
-        int moveCount = game.undoSize();
+        int moveCount = 0;
         while (!game.isGameOver()) {
             List<Move> validMoves = game.getValidMoves();
             Move randomMove = validMoves.get((int) (Math.random() * validMoves.size()));
-            game.applyMoveAI(randomMove);
-            game.repaint();
-            //moveCount += 1;
+            game.applyMove(randomMove);
+            moveCount += 1;
         }
 
         Game.gameStates result = game.getGameState();
-        for (int i = 0; i < moveCount - game.undoSize(); i++) {
+        for (int i = 0; i < moveCount; i++) {
             game.undoMove();
         }
         return result;
@@ -86,7 +82,7 @@ public class MonteCarlo {
         public Game.gameStates search(Game game) {
             Game.gameStates targetState = findCurrentTargetState(game);
 
-            game.applyMoveAI(move);
+            game.applyMove(move);
             Game.gameStates simulationResult = this._search(game, targetState);
             game.undoMove();
 
@@ -107,14 +103,14 @@ public class MonteCarlo {
 
             if (child == null) {
                 Game.gameStates childTargetState = findCurrentTargetState(game);
-                game.applyMoveAI(selectedMove);
+                game.applyMove(selectedMove);
                 List<Move> childValidMoves = game.getValidMoves();
                 game.undoMove();
 
                 child = new Node(childValidMoves, selectedMove);
                 moveToChildMap.put(selectedMove, child);
 
-                game.applyMoveAI(selectedMove);
+                game.applyMove(selectedMove);
                 Game.gameStates randomPlaythroughResult = randomPlaythrough(game);
                 game.undoMove();
 

@@ -22,23 +22,19 @@ public class Move {
         this.actions.add(a);
     }
 
-    public boolean apply(Board board) {
-        for (Action a : actions) {
-            a.apply(board);
-        }
-        return true;
-    }
-
-    public boolean undo(Board board) {
-        ArrayList<Action> tempActions = new ArrayList<>();
-        for (Action a : actions) {
-            tempActions.add(a);
-        }
+    public void undo(Board board) {
+        ArrayList<Action> tempActions = new ArrayList<>(actions);
         Collections.reverse(tempActions);
         for (Action a : tempActions) {
             a.undo(board);
         }
-        return true;
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof Move) {
+            return equals((Move)obj);
+        }
+        return false;
     }
 
     public boolean equals(Move m) {
@@ -63,5 +59,13 @@ public class Move {
             positions.add(a.nextPosition());
         }
         return positions;
+    }
+
+    public String toString() {
+        StringBuilder string = new StringBuilder();
+        for (Action a : actions) {
+            string.append(a);
+        }
+        return string.toString();
     }
 }

@@ -122,6 +122,14 @@ public class Jump implements Action {
     }
 
 
-
-
+    @Override
+    public String toString() {
+        return "Jump{" +
+                "piece=" + piece +
+                ", take=" + take +
+                ", currentPosition=" + currentPosition +
+                ", takePosition=" + takePosition +
+                ", nextPosition=" + nextPosition +
+                '}';
+    }
 }

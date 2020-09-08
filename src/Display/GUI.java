@@ -87,7 +87,10 @@ public class GUI {
             JOptionPane.showMessageDialog(null, "Game hasn't started yet");
             return;
         }
-        if (!game.undoMove()) {
+
+        try {
+            game.undoMove();
+        } catch (MoveException e) {
             JOptionPane.showMessageDialog(null, "No more moves to undo");
         }
     }
