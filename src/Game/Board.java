@@ -149,18 +149,7 @@ public class Board {
         }
     }
 
-    public List<Move> allValidMoves() {
-        List<Move> allValidMoves = new ArrayList<>();
-        for (Piece p : positionsMap.keySet()) {
-            Set<Move> tempMoves = getValidMoves(p);
-            for (Move m : tempMoves) {
-                allValidMoves.add(m);
-            }
-        }
-        return allValidMoves;
-    }
-
-    public List<Move> allValidMovesPlayer(int player, boolean mustJump) {
+    public List<Move> allValidMoves(int player, boolean mustJump) {
         List<Move> allValidMoves = new ArrayList<>();
         for (Piece p : positionsMap.keySet()) {
             Set<Move> tempMoves = new HashSet<>();

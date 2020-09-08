@@ -95,4 +95,9 @@ public class Forward implements Action {
         return this.nextPosition;
     }
 
+    @Override
+    public Piece getPiece() {
+        return this.piece;
+    }
+
 }

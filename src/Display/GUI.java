@@ -109,16 +109,5 @@ public class GUI {
         }
 
         game.repaint();
-        if (game.isGameOver() && !gameOver) {
-            Game.gameStates gameState = game.getGameState();
-            gameOver = true;
-            if (gameState.equals(Game.gameStates.BLACK_WIN)) {
-                JOptionPane.showMessageDialog(null, "Black wins!");
-            } else if (gameState.equals(Game.gameStates.WHITE_WIN)) {
-                JOptionPane.showMessageDialog(null, "White wins!");
-            } else if (gameState.equals(Game.gameStates.STALEMATE)) {
-                JOptionPane.showMessageDialog(null, "Stalemate");
-            }
-        }
     }
 }

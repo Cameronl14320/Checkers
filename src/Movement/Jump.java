@@ -107,6 +107,11 @@ public class Jump implements Action {
     }
 
     @Override
+    public Piece getPiece() {
+        return this.piece;
+    }
+
+    @Override
     public boolean equals(Action a) {
         if (!a.getClass().equals(Jump.class)) {
             return false;

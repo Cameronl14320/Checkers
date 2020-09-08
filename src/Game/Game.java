@@ -1,5 +1,6 @@
 package Game;
 
+import AI.MonteCarlo;
 import Movement.Forward;
 import Movement.Jump;
 import Movement.Action;
@@ -20,10 +21,12 @@ public class Game extends JPanel {
 
     // Core
     private final int size = 8;
-    private final int rowsOfPieces = 1;
-    public Board currentBoard;
+    private final int rowsOfPieces = 3;
+    private Board currentBoard;
 
     // Gameplay
+    private boolean computer = true;
+    private int humanPlayer = 1;
     private int currentPlayer;
     private Move currentMove;
     private Stack<Move> previousMoves;
@@ -51,10 +54,27 @@ public class Game extends JPanel {
         handleActions(row, col);
     }
 
-    public void handleActions(int row, int col) {
-        if (isGameOver()) {
-            return;
+    public void handleSelection(Piece newSelect) {
+        if (newSelect.matchingPlayer(currentPlayer)) {
+            if (mustJump) {
+                return;
+            } else if (forceJump && !currentBoard.allValidMoves(currentPlayer, true).isEmpty()) {
+                if (currentBoard.canJump(newSelect)) {
+                    selectedPiece = newSelect;
+                    currentBoard.getValidPositions(newSelect, true);
+                }
+            } else {
+                selectedPiece = newSelect;
+                currentBoard.getValidPositions(newSelect, false);
+            }
         }
+
+        if (selectedPiece != null) {
+            selectedPiece.setSelected(true);
+        }
+    }
+
+    public void handleActions(int row, int col) {
         if (currentBoard.pieceAt(row, col)) {
             handleSelection(currentBoard.getPieceAt(row, col));
         } else {
@@ -85,34 +105,37 @@ public class Game extends JPanel {
         }
     }
 
+    public void applyMove(Move m) {
+        for (Action a : m.getActions()) {
+            applyMove(a);
+        }
+    }
+
     public void applyMove(Action action) {
         boolean lastWasJump = false;
         if (action.getClass().equals(Jump.class)) {
             lastWasJump = true;
         } else {
-            if (forceJump && !currentBoard.allValidMovesPlayer(currentPlayer, true).isEmpty()) {
+            if (forceJump && !currentBoard.allValidMoves(currentPlayer, true).isEmpty()) {
                 return;
             }
         }
 
         if (action.apply(currentBoard)) {
-            currentBoard.checkPromoted(selectedPiece);
+            currentBoard.checkPromoted(action.getPiece());
             currentMove.addAction(action);
 
-            if (isGameOver()) {
-                System.out.println("OMG THE GAME IS OVER");
-            }
-            if (lastWasJump && currentBoard.canJump(selectedPiece)) {
+            if (lastWasJump && currentBoard.canJump(action.getPiece())) {
                 // TODO : make end turn button
                 mustJump = true;
                 currentBoard.removePieceHighlights();
                 currentBoard.removePositionHighlights();
-                currentBoard.getValidPositions(selectedPiece, true);
-                selectedPiece.setSelected(true);
+                currentBoard.getValidPositions(action.getPiece(), true);
+                action.getPiece().setSelected(true);
             } else {
                 previousMoves.add(currentMove);
                 changeTurn();
-
+                handleAI();
             }
         }
     }
@@ -126,25 +149,6 @@ public class Game extends JPanel {
         return true;
     }
 
-    public void handleSelection(Piece newSelect) {
-        if (newSelect.matchingPlayer(currentPlayer)) {
-            if (mustJump) {
-                return;
-            } else if (forceJump && !currentBoard.allValidMovesPlayer(currentPlayer, true).isEmpty()) {
-                if (currentBoard.canJump(newSelect)) {
-                    selectedPiece = newSelect;
-                    currentBoard.getValidPositions(newSelect, true);
-                }
-            } else {
-                selectedPiece = newSelect;
-                currentBoard.getValidPositions(newSelect, false);
-            }
-        }
-
-        if (selectedPiece != null) {
-            selectedPiece.setSelected(true);
-        }
-    }
 
     public boolean isGameOver() {
         int winner = currentBoard.returnWinningPlayer();
@@ -154,7 +158,7 @@ public class Game extends JPanel {
             } else {
                 gameState = gameStates.WHITE_WIN;
             }
-        } else if (previousMoves.size() > 75) {
+        } else if (previousMoves.size() > 200) {
             gameState = gameStates.STALEMATE;
         }
 
@@ -162,18 +166,6 @@ public class Game extends JPanel {
             return true;
         }
         return false;
-    }
-
-    public gameStates getGameState() {
-        return gameState;
-    }
-
-    public int getCurrentPlayer() {
-        return this.currentPlayer;
-    }
-
-    public boolean getMustJump() {
-        return this.mustJump;
     }
 
     private void finishGame() {
@@ -203,6 +195,38 @@ public class Game extends JPanel {
         selectedPosition = null;
     }
 
+    private void handleAI() {
+        if (isGameOver()) {
+            return;
+        }
+        if (computer) {
+            while (currentPlayer != humanPlayer) {
+                findAIMove();
+            }
+        }
+    }
+
+    private void findAIMove() {
+        if (!computer) {
+            return;
+        }
+        if (currentPlayer == humanPlayer) {
+            return;
+        }
+        MonteCarlo AI = new MonteCarlo(this);
+        Move AIMove = AI.search();
+        if (AIMove == null) {
+            return;
+        }
+        for (Action a : AIMove.getActions()) {
+            applyMove(a);
+        }
+    }
+
+    public java.util.List<Move> getValidMoves(int player, boolean mustJump) {
+        return this.currentBoard.allValidMoves(player, mustJump);
+    }
+
     public void initBoard(int size, int rowsOfPieces) {
         this.currentBoard = new Board(size, rowsOfPieces); // Create an 8*8 board
     }
@@ -212,5 +236,17 @@ public class Game extends JPanel {
         // Draw Board Positions
         rectSize = (this.getWidth() < this.getHeight() ? this.getWidth()/size : this.getHeight()/size);
         currentBoard.paint(g, rectSize);
+    }
+
+    public gameStates getGameState() {
+        return gameState;
+    }
+
+    public int getCurrentPlayer() {
+        return this.currentPlayer;
+    }
+
+    public boolean getMustJump() {
+        return this.mustJump;
     }
 }

@@ -19,4 +19,6 @@ public interface Action {
     boolean equals(Action a);
 
     Position nextPosition();
+
+    Piece getPiece();
 }
