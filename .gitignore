@@ -8,3 +8,4 @@ out/production/Checkers/Game/Game$gameStates.class
 out/production/Checkers/Game/Board.class
 out/production/Checkers/Display/GUI.class
 out/production/Checkers/Display/GUI$1.class
+*.class
