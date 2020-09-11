@@ -1,6 +1,8 @@
 # Checkers
  Personal Project - Checkers with Monte Carlo AI
  
+ ![](https://github.com/Cameronl14320/Checkers/blob/master/checkers.gif)
+ 
 # Implemented:
  
 ## GUI (100%)
